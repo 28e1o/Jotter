@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openappslabs.jotter.ui.components.BackupDialogType
 import com.openappslabs.jotter.ui.components.BackupRestoreDialog
+import com.openappslabs.jotter.ui.components.ClearAllDataDialog
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsGroup
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemArrow
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.TinyGap
@@ -193,6 +194,8 @@ fun DataManagementScreen(
                 }
             }
 
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
             item {
                 SettingsGroup {
                     SettingsItemArrow(
@@ -218,6 +221,20 @@ fun DataManagementScreen(
                 }
             }
         }
+    }
+
+    if (showClearAllDialog) {
+        ClearAllDataDialog(
+            onDismiss = {
+                haptics.click()
+                showClearAllDialog = false
+            },
+            onConfirm = {
+                haptics.heavy()
+                showClearAllDialog = false
+                viewModel.clearAllData()
+            }
+        )
     }
 
     activeDialog?.let { type ->

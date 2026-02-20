@@ -403,20 +403,6 @@ fun SettingsScreen(
             }
         }
 
-        if (showClearAllDialog) {
-            ClearAllDataDialog(
-                onDismiss = { 
-                    haptics.click()
-                    showClearAllDialog = false 
-                },
-                onConfirm = {
-                    haptics.heavy()
-                    showClearAllDialog = false
-                    viewModel.clearAllData()
-                }
-            )
-        }
-
         if (showDisableLockWarningDialog) {
             DisableLockWarningDialog(
                 onDismiss = { 

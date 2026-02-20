@@ -48,14 +48,14 @@ data class DataManagementUiState(
 
 @HiltViewModel
 class DataManagementScreenViewModel @Inject constructor(
-    private val repository: NotesRepository
+    private val notesRepository: NotesRepository
 ) : ViewModel() {
     private val _internalUiState = MutableStateFlow(DataManagementUiState())
     val uiState: StateFlow<DataManagementUiState> = combine(
         _internalUiState,
-        repository.getAllNotes(),
-        repository.getArchivedNotes(),
-        repository.getCategories()
+        notesRepository.getAllNotes(),
+        notesRepository.getArchivedNotes(),
+        notesRepository.getCategories()
     ) { currentUi, notes, archived, categories ->
         val hasData = notes.isNotEmpty() || archived.isNotEmpty() || categories.isNotEmpty()
         currentUi.copy(hasDataToExport = hasData)
@@ -78,7 +78,7 @@ class DataManagementScreenViewModel @Inject constructor(
 
             try {
                 val jsonString = withContext(Dispatchers.IO) {
-                    val backupData = repository.getBackupData()
+                    val backupData = notesRepository.getBackupData()
                     if (backupData.notes.isEmpty() && backupData.categories.isEmpty()) {
                         null
                     } else {
@@ -110,7 +110,7 @@ class DataManagementScreenViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val jsonString = inputStream.bufferedReader().use { it.readText() }
                     val backupData = json.decodeFromString<BackupData>(jsonString)
-                    repository.restoreBackupData(backupData)
+                    notesRepository.restoreBackupData(backupData)
                 }
                 
                 _internalUiState.update { it.copy(isImportInProgress = false, lastImportSuccess = true) }
@@ -125,5 +125,11 @@ class DataManagementScreenViewModel @Inject constructor(
 
     fun clearError() {
         _internalUiState.update { it.copy(errorMessage = null, lastExportSuccess = null, lastImportSuccess = null) }
+    }
+
+    fun clearAllData() {
+        viewModelScope.launch {
+            notesRepository.clearAllDatabaseData()
+        }
     }
 }
