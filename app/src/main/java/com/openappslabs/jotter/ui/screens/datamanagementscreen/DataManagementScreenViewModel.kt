@@ -14,7 +14,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.openappslabs.jotter.ui.screens.backuprestore
+package com.openappslabs.jotter.ui.screens.datamanagementscreen
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
@@ -37,7 +37,7 @@ import java.io.InputStream
 import javax.inject.Inject
 
 @Immutable
-data class BackupRestoreUiState(
+data class DataManagementUiState(
     val isExportInProgress: Boolean = false,
     val isImportInProgress: Boolean = false,
     val lastExportSuccess: Boolean? = null,
@@ -47,11 +47,11 @@ data class BackupRestoreUiState(
 )
 
 @HiltViewModel
-class BackupRestoreScreenViewModel @Inject constructor(
+class DataManagementScreenViewModel @Inject constructor(
     private val repository: NotesRepository
 ) : ViewModel() {
-    private val _internalUiState = MutableStateFlow(BackupRestoreUiState())
-    val uiState: StateFlow<BackupRestoreUiState> = combine(
+    private val _internalUiState = MutableStateFlow(DataManagementUiState())
+    val uiState: StateFlow<DataManagementUiState> = combine(
         _internalUiState,
         repository.getAllNotes(),
         repository.getArchivedNotes(),
@@ -64,7 +64,7 @@ class BackupRestoreScreenViewModel @Inject constructor(
     .stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = BackupRestoreUiState()
+        initialValue = DataManagementUiState()
     )
 
     private val json = Json { 
