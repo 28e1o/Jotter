@@ -95,7 +95,7 @@ fun SettingsScreen(
     onManageTagsClick: () -> Unit,
     onArchiveClick: () -> Unit,
     onTrashClick: () -> Unit,
-    onBackupRestoreClick: () -> Unit,
+    onDataManagementClick: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     onAboutClick: () -> Unit,
     viewModel: SettingsScreenViewModel = hiltViewModel()
@@ -369,17 +369,17 @@ fun SettingsScreen(
                         icon = Icons.Default.Backup,
                         title = "Backup & Restore",
                         subtitle = "Export or import notes",
-                        onClick = onBackupRestoreClick
+                        onClick = onDataManagementClick
                     )
-                    TinyGap()
+//                    TinyGap()
 
-                    SettingsItemArrow(
-                        icon = Icons.Default.DeleteForever,
-                        title = "Clear All Local Data",
-                        subtitle = "Reset app and delete all notes permanently",
-                        onClick = { showClearAllDialog = true },
-                        isDestructive = true
-                    )
+//                    SettingsItemArrow(
+//                        icon = Icons.Default.DeleteForever,
+//                        title = "Clear All Local Data",
+//                        subtitle = "Reset app and delete all notes permanently",
+//                        onClick = { showClearAllDialog = true },
+//                        isDestructive = true
+//                    )
                 }
             }
 
@@ -401,20 +401,6 @@ fun SettingsScreen(
                     )
                 }
             }
-        }
-
-        if (showClearAllDialog) {
-            ClearAllDataDialog(
-                onDismiss = { 
-                    haptics.click()
-                    showClearAllDialog = false 
-                },
-                onConfirm = {
-                    haptics.heavy()
-                    showClearAllDialog = false
-                    viewModel.clearAllData()
-                }
-            )
         }
 
         if (showDisableLockWarningDialog) {

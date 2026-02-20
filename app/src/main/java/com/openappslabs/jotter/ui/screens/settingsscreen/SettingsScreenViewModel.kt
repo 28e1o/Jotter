@@ -118,13 +118,6 @@ class SettingsScreenViewModel @Inject constructor(
         viewModelScope.launch { repository.setSecureMode(isEnabled) }
     }
 
-    fun clearAllData() {
-        viewModelScope.launch {
-            notesRepository.clearAllDatabaseData()
-            repository.clearAllData()
-        }
-    }
-
     fun updateGridView(isGrid: Boolean) {
         viewModelScope.launch { repository.setGridView(isGrid) }
     }

@@ -36,7 +36,7 @@ sealed interface AppRoutes {
     data object AddCategory : AppRoutes
 
     @Serializable
-    data object BackupRestore : AppRoutes
+    data object DataManagement : AppRoutes
 
     @Serializable
     data object PrivacyPolicy : AppRoutes

@@ -24,7 +24,7 @@ import androidx.navigation.compose.composable
 import com.openappslabs.jotter.ui.screens.aboutscreen.AboutScreen
 import com.openappslabs.jotter.ui.screens.addcategoryscreen.AddCategoryScreen
 import com.openappslabs.jotter.ui.screens.archivescreen.ArchiveScreen
-import com.openappslabs.jotter.ui.screens.backuprestore.BackupRestoreScreen
+import com.openappslabs.jotter.ui.screens.datamanagementscreen.DataManagementScreen
 import com.openappslabs.jotter.ui.screens.homescreen.HomeScreen
 import com.openappslabs.jotter.ui.screens.notedetailscreen.NoteDetailScreen
 import com.openappslabs.jotter.ui.screens.privacypolicyscreen.PrivacyPolicyScreen
@@ -64,7 +64,7 @@ fun AppNavHost(
                 onManageTagsClick = { navController.navigate(AppRoutes.AddCategory) },
                 onArchiveClick = { navController.navigate(AppRoutes.Archive) },
                 onTrashClick = { navController.navigate(AppRoutes.Trash) },
-                onBackupRestoreClick = { navController.navigate(AppRoutes.BackupRestore) },
+                onDataManagementClick = { navController.navigate(AppRoutes.DataManagement) },
                 onPrivacyPolicyClick = { navController.navigate(AppRoutes.PrivacyPolicy) },
                 onAboutClick = { navController.navigate(AppRoutes.About) }
             )
@@ -88,8 +88,8 @@ fun AppNavHost(
             )
         }
 
-        composable<AppRoutes.BackupRestore> {
-            BackupRestoreScreen(onBackClick = navController::popBackStack)
+        composable<AppRoutes.DataManagement> {
+            DataManagementScreen(onBackClick = navController::popBackStack)
         }
 
         composable<AppRoutes.PrivacyPolicy> {
