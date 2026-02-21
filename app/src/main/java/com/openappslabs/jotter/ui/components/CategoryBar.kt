@@ -2,8 +2,7 @@
  * Copyright (c) 2026 Open Apps Labs
  *
  * This file is part of Jotter
- *
- * Jotter is free software: you can redistribute it and/or modify it under the terms of the
+ * * Jotter is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Jotter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -21,6 +20,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,6 +57,11 @@ fun CategoryBar(
     onCategorySelect: (String) -> Unit,
     onAddCategoryClick: () -> Unit,
     showAddButton: Boolean,
+    showSortBar: Boolean,
+    sortDirection: SortDirection,
+    sortType: SortType,
+    onSortDirectionClick: () -> Unit,
+    onSortTypeClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -92,71 +98,89 @@ fun CategoryBar(
         }
     }
 
-    LazyRow(
-        state = listState,
+    Row(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        itemsIndexed(
-            items = displayList,
-            key = { _, category -> category }
-        ) { _, category ->
-            val isSelected = category == selectedCategory
+        LazyRow(
+            state = listState,
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = if (showSortBar) 0.dp else 16.dp
+            ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            itemsIndexed(
+                items = displayList,
+                key = { _, category -> category }
+            ) { _, category ->
+                val isSelected = category == selectedCategory
 
-            FilterChip(
-                modifier = Modifier.animateItem(
-                    fadeInSpec = tween(300),
-                    fadeOutSpec = tween(300)
-                ),
-                selected = isSelected,
-                onClick = {
-                    haptics.tick()
-                    if (isSelected && category != "All") {
-                        onCategorySelect("All")
-                    } else {
-                        onCategorySelect(category)
-                    }
-                },
-                label = { Text(text = category) },
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
-
-        if (showAddButton) {
-            item(key = "AddCategory") {
                 FilterChip(
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(300),
                         fadeOutSpec = tween(300)
                     ),
-                    selected = false,
+                    selected = isSelected,
                     onClick = {
-                        haptics.click()
-                        onAddCategoryClick()
+                        haptics.tick()
+                        if (isSelected && category != "All") {
+                            onCategorySelect("All")
+                        } else {
+                            onCategorySelect(category)
+                        }
                     },
-                    label = { Text("Add") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        iconColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        borderColor = MaterialTheme.colorScheme.outlineVariant,
-                        enabled = true,
-                        selected = false
-                    )
+                    label = { Text(text = category) },
+                    shape = RoundedCornerShape(8.dp)
                 )
             }
+
+            if (showAddButton) {
+                item(key = "AddCategory") {
+                    FilterChip(
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = tween(300),
+                            fadeOutSpec = tween(300)
+                        ),
+                        selected = false,
+                        onClick = {
+                            haptics.click()
+                            onAddCategoryClick()
+                        },
+                        label = { Text("Add") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = MaterialTheme.colorScheme.outlineVariant,
+                            enabled = true,
+                            selected = false
+                        )
+                    )
+                }
+            }
+        }
+        if (showSortBar) {
+            SortBar(
+                modifier = Modifier.padding(end = 16.dp),
+                sortDirection = sortDirection,
+                sortType = sortType,
+                onSortDirectionClick = onSortDirectionClick,
+                onSortTypeClick = onSortTypeClick
+            )
         }
     }
 }

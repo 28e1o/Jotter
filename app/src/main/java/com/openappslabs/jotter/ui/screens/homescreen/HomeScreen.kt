@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +45,9 @@ import com.openappslabs.jotter.ui.components.CategoryItems
 import com.openappslabs.jotter.ui.components.FAB
 import com.openappslabs.jotter.ui.components.NoteCard
 import com.openappslabs.jotter.ui.components.SearchBar
+import com.openappslabs.jotter.ui.components.SortDirection
+import com.openappslabs.jotter.ui.components.SortType
+import com.openappslabs.jotter.ui.theme.JotterTheme
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.BiometricAuthUtil
 import java.text.SimpleDateFormat
@@ -63,7 +67,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyStaggeredGridState()
     val context = LocalContext.current
-    
     val locale = Locale.getDefault()
     val dateFormatter = remember(uiState.dateFormat, locale) {
         SimpleDateFormat(uiState.dateFormat, locale)
@@ -100,21 +103,31 @@ fun HomeScreen(
             )
 
             CategoryBar(
-                categories          = CategoryItems(uiState.allAvailableCategories),
-                selectedCategory    = uiState.selectedCategory,
-                onCategorySelect    = { viewModel.selectCategory(it) },
-                onAddCategoryClick  = onAddCategoryClick,
-                showAddButton       = uiState.showAddCategoryButton,
-                modifier            = Modifier.padding(bottom = 8.dp)
+                categories = CategoryItems(uiState.allAvailableCategories),
+                selectedCategory = uiState.selectedCategory,
+                onCategorySelect = { viewModel.selectCategory(it) },
+                onAddCategoryClick = onAddCategoryClick,
+                showAddButton = uiState.showAddCategoryButton,
+                showSortBar = uiState.showSortBar,
+                modifier = Modifier.padding(bottom = 8.dp),
+                sortDirection = uiState.sortDirection,
+                sortType = uiState.sortType,
+                onSortDirectionClick = {
+                    viewModel.setSortDirection(
+                        if (uiState.sortDirection == SortDirection.ASCENDING) SortDirection.DESCENDING
+                        else SortDirection.ASCENDING
+                    )
+                },
+                onSortTypeClick = { viewModel.setSortType(uiState.sortType.next()) }
             )
 
             LazyVerticalStaggeredGrid(
-                state                = listState,
-                columns              = StaggeredGridCells.Fixed(if (uiState.isGridView) 2 else 1),
-                modifier             = Modifier.fillMaxSize(),
-                contentPadding       = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                state = listState,
+                columns = StaggeredGridCells.Fixed(if (uiState.isGridView) 2 else 1),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalItemSpacing  = 12.dp
+                verticalItemSpacing = 12.dp
             ) {
                 items(uiState.allNotes, key = { it.id }) { note ->
                     val dateStr = remember(note.createdTime, uiState.dateFormat, locale) {
@@ -127,7 +140,6 @@ fun HomeScreen(
                         onClick   = { 
                             haptics.tick()
                             viewModel.onNoteClicked(note.id)
-                            
                             if (note.isLocked && uiState.isBiometricEnabled) {
                                 val activity = context as? FragmentActivity
                                 if (activity != null) {

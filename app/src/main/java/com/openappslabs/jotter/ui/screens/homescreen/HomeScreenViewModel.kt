@@ -23,6 +23,8 @@ import com.openappslabs.jotter.data.model.Note
 import com.openappslabs.jotter.data.repository.CategoryRepository
 import com.openappslabs.jotter.data.repository.NotesRepository
 import com.openappslabs.jotter.data.repository.UserPreferencesRepository
+import com.openappslabs.jotter.ui.components.SortDirection
+import com.openappslabs.jotter.ui.components.SortType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,8 +52,6 @@ class HomeScreenViewModel @Inject constructor(
         _selectedCategory,
         _searchQuery
     ) { notes, categories, prefs, selectedCategory, searchQuery ->
-
-        // Validate if selected category still exists, otherwise default to "All"
         val validatedCategory = if (selectedCategory != "All" && 
             !listOf("Pinned", "Locked").contains(selectedCategory) && 
             !categories.contains(selectedCategory)) {
@@ -81,8 +81,11 @@ class HomeScreenViewModel @Inject constructor(
             isGridView = prefs.isGridView,
             allAvailableCategories = categories,
             showAddCategoryButton = prefs.showAddCategoryButton,
+            showSortBar = prefs.showSortBar,
             isBiometricEnabled = prefs.isBiometricEnabled,
-            dateFormat = prefs.dateFormat
+            dateFormat = prefs.dateFormat,
+            sortType = SortType.valueOf(prefs.sortType),
+            sortDirection = SortDirection.valueOf(prefs.sortDirection)
         )
     }
     .distinctUntilChanged()
@@ -100,14 +103,29 @@ class HomeScreenViewModel @Inject constructor(
         val isGridView: Boolean = true,
         val allAvailableCategories: List<String> = emptyList(),
         val showAddCategoryButton: Boolean = true,
+        val showSortBar: Boolean = false,
         val isBiometricEnabled: Boolean = false,
-        val dateFormat: String = "dd MMM"
+        val dateFormat: String = "dd MMM",
+        val sortType: SortType = SortType.ALPHABETICAL,
+        val sortDirection: SortDirection = SortDirection.ASCENDING
     )
 
     fun toggleGridView() {
         val currentIsGrid = uiState.value.isGridView
         viewModelScope.launch {
             userPreferencesRepository.setGridView(!currentIsGrid)
+        }
+    }
+
+    fun setSortType(sortType: SortType) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSortType(sortType.name)
+        }
+    }
+
+    fun setSortDirection(sortDirection: SortDirection) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSortDirection(sortDirection.name)
         }
     }
 
