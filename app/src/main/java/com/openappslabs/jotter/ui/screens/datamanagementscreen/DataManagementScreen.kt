@@ -169,8 +169,8 @@ fun DataManagementScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.Upload,
-                        title = "Export Notes",
-                        subtitle = "Save all notes and tags to a local file",
+                        title = "Export notes",
+                        subtitle = "Export notes to file",
                         onClick = {
                             haptics.click()
                             if (uiState.hasDataToExport) {
@@ -184,8 +184,8 @@ fun DataManagementScreen(
                     TinyGap()
                     SettingsItemArrow(
                         icon = Icons.Default.Download,
-                        title = "Import Notes",
-                        subtitle = "Restore data from a previously exported file",
+                        title = "Import notes",
+                        subtitle = "Import notes from file",
                         onClick = {
                             haptics.click()
                             importLauncher.launch("application/json")
@@ -200,8 +200,8 @@ fun DataManagementScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.DeleteForever,
-                        title = "Clear All Local Data",
-                        subtitle = "Reset app and delete all notes permanently",
+                        title = "Clear all local data",
+                        subtitle = "Delete all data permanently",
                         onClick = { showClearAllDialog = true },
                         isDestructive = true
                     )

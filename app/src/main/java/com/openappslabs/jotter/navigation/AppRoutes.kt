@@ -45,6 +45,15 @@ sealed interface AppRoutes {
     data object About : AppRoutes
 
     @Serializable
+    data object AppearanceScreen : AppRoutes
+
+    @Serializable
+    data object MiscellaneousScreen : AppRoutes
+
+    @Serializable
+    data object SecurityScreen : AppRoutes
+
+    @Serializable
     data class NoteDetail(
         val noteId: Int = -1,
         val category: String? = null
