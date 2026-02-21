@@ -76,6 +76,10 @@ fun HomeScreen(
         listState.animateScrollToItem(0)
     }
 
+    LaunchedEffect(uiState.sortType, uiState.sortDirection) {
+        listState.animateScrollToItem(0)
+    }
+
     Scaffold(
         floatingActionButton = {
             FAB(
