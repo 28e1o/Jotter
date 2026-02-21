@@ -108,6 +108,7 @@ fun HomeScreen(
                 onCategorySelect = { viewModel.selectCategory(it) },
                 onAddCategoryClick = onAddCategoryClick,
                 showAddButton = uiState.showAddCategoryButton,
+                showSortBar = uiState.showSortBar,
                 modifier = Modifier.padding(bottom = 8.dp),
                 sortDirection = uiState.sortDirection,
                 sortType = uiState.sortType,

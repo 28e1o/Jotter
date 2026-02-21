@@ -57,6 +57,7 @@ fun CategoryBar(
     onCategorySelect: (String) -> Unit,
     onAddCategoryClick: () -> Unit,
     showAddButton: Boolean,
+    showSortBar: Boolean,
     sortDirection: SortDirection,
     sortType: SortType,
     onSortDirectionClick: () -> Unit,
@@ -169,12 +170,14 @@ fun CategoryBar(
                 }
             }
         }
-        SortBar(
-            modifier = Modifier.padding(end = 16.dp),
-            sortDirection = sortDirection,
-            sortType = sortType,
-            onSortDirectionClick = onSortDirectionClick,
-            onSortTypeClick = onSortTypeClick
-        )
+        if (showSortBar) {
+            SortBar(
+                modifier = Modifier.padding(end = 16.dp),
+                sortDirection = sortDirection,
+                sortType = sortType,
+                onSortDirectionClick = onSortDirectionClick,
+                onSortTypeClick = onSortTypeClick
+            )
+        }
     }
 }

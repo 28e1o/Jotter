@@ -27,10 +27,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -173,6 +175,15 @@ fun MiscellaneousScreen(
                         subtitle = "Vibrate on touch interactions",
                         checked = uiState.isHapticEnabled,
                         onCheckedChange = viewModel::updateHapticEnabled
+                    )
+                    TinyGap()
+
+                    SettingsItemSwitch(
+                        icon = Icons.AutoMirrored.Filled.Sort,
+                        title = "Show sort bar",
+                        subtitle = "Show or hide sort bar on home screen",
+                        checked = uiState.showSortBar,
+                        onCheckedChange = viewModel::updateShowSortBar
                     )
                 }
             }

@@ -43,6 +43,7 @@ data class UserPreferences(
     val isAppLockEnabled: Boolean = false,
     val isSecureMode: Boolean = false,
     val showAddCategoryButton: Boolean = true,
+    val showSortBar: Boolean = true,
     val is24HourFormat: Boolean = false,
     val dateFormat: String = "dd MMM",
     val sortType: String = SortType.ALPHABETICAL.name,
@@ -64,6 +65,7 @@ class UserPreferencesRepository @Inject constructor(
         val IS_APP_LOCK = booleanPreferencesKey("is_app_lock")
         val IS_SECURE_MODE = booleanPreferencesKey("is_secure_mode")
         val SHOW_ADD_CATEGORY_BUTTON = booleanPreferencesKey("show_add_category_button")
+        val SHOW_SORT_BAR = booleanPreferencesKey("show_sort_bar")
         val IS_24_HOUR_FORMAT = booleanPreferencesKey("is_24_hour_format")
         val DATE_FORMAT = stringPreferencesKey("date_format")
         val SORT_TYPE = stringPreferencesKey("sort_type")
@@ -89,6 +91,7 @@ class UserPreferencesRepository @Inject constructor(
                 isAppLockEnabled = preferences[Keys.IS_APP_LOCK] ?: false,
                 isSecureMode = preferences[Keys.IS_SECURE_MODE] ?: false,
                 showAddCategoryButton = preferences[Keys.SHOW_ADD_CATEGORY_BUTTON] ?: true,
+                showSortBar = preferences[Keys.SHOW_SORT_BAR] ?: true,
                 is24HourFormat = preferences[Keys.IS_24_HOUR_FORMAT] ?: false,
                 dateFormat = preferences[Keys.DATE_FORMAT] ?: "dd MMM",
                 sortType = preferences[Keys.SORT_TYPE] ?: SortType.ALPHABETICAL.name,
@@ -143,6 +146,10 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setShowAddCategoryButton(show: Boolean) {
         dataStore.edit { it[Keys.SHOW_ADD_CATEGORY_BUTTON] = show }
+    }
+
+    suspend fun setShowSortBar(show: Boolean) {
+        dataStore.edit { it[Keys.SHOW_SORT_BAR] = show }
     }
 
     suspend fun setTimeFormat(is24Hour: Boolean) {
