@@ -74,8 +74,35 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
 
+        val sortType = SortType.valueOf(prefs.sortType)
+        val sortDirection = SortDirection.valueOf(prefs.sortDirection)
+
+        val sortedNotes = when (sortType) {
+            SortType.ALPHABETICAL -> {
+                if (sortDirection == SortDirection.ASCENDING) {
+                    filteredNotes.sortedBy { it.title }
+                } else {
+                    filteredNotes.sortedByDescending { it.title }
+                }
+            }
+            SortType.CREATED -> {
+                if (sortDirection == SortDirection.ASCENDING) {
+                    filteredNotes.sortedBy { it.createdTime }
+                } else {
+                    filteredNotes.sortedByDescending { it.createdTime }
+                }
+            }
+            SortType.LAST_UPDATED -> {
+                if (sortDirection == SortDirection.ASCENDING) {
+                    filteredNotes.sortedBy { it.updatedTime }
+                } else {
+                    filteredNotes.sortedByDescending { it.updatedTime }
+                }
+            }
+        }
+
         UiState(
-            allNotes = filteredNotes,
+            allNotes = sortedNotes,
             selectedCategory = validatedCategory,
             searchQuery = searchQuery,
             isGridView = prefs.isGridView,
@@ -84,8 +111,8 @@ class HomeScreenViewModel @Inject constructor(
             showSortBar = prefs.showSortBar,
             isBiometricEnabled = prefs.isBiometricEnabled,
             dateFormat = prefs.dateFormat,
-            sortType = SortType.valueOf(prefs.sortType),
-            sortDirection = SortDirection.valueOf(prefs.sortDirection)
+            sortType = sortType,
+            sortDirection = sortDirection
         )
     }
     .distinctUntilChanged()
