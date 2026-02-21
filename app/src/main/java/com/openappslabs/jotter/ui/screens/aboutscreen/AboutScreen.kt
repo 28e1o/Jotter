@@ -16,6 +16,8 @@
 
 package com.openappslabs.jotter.ui.screens.aboutscreen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +69,7 @@ import com.openappslabs.jotter.BuildConfig
 import com.openappslabs.jotter.R
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import java.time.Year
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +78,6 @@ fun AboutScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     val haptics = rememberJotterHaptics()
-
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val primary = MaterialTheme.colorScheme.primary
     val iconBackgroundBrush = remember(primaryContainer, primary) {
@@ -81,11 +85,11 @@ fun AboutScreen(
             colors = listOf(primaryContainer, primary.copy(alpha = 0.1f))
         )
     }
-
     val copyrightText = remember {
         val year = Year.now().toString()
         "Made with ❤️ | © $year Open Apps Labs"
     }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -209,6 +213,20 @@ fun AboutScreen(
                         icon = Icons.Outlined.Gavel,
                         label = "View License",
                         onClick = { uriHandler.openUri("https://www.gnu.org/licenses/gpl-3.0.en.html") }
+                    )
+                    AboutDivider()
+                    ActionItem(
+                        icon = Icons.Outlined.Email,
+                        label = "Support",
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = "mailto:openappslabs@gmail.com".toUri()
+                            }
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                            }
+                        }
                     )
                 }
             }

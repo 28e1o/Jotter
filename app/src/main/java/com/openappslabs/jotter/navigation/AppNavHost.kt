@@ -23,11 +23,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.openappslabs.jotter.ui.screens.aboutscreen.AboutScreen
 import com.openappslabs.jotter.ui.screens.addcategoryscreen.AddCategoryScreen
+import com.openappslabs.jotter.ui.screens.appearancescreen.AppearanceScreen
 import com.openappslabs.jotter.ui.screens.archivescreen.ArchiveScreen
 import com.openappslabs.jotter.ui.screens.datamanagementscreen.DataManagementScreen
+import com.openappslabs.jotter.ui.screens.miscellaneousscreen.MiscellaneousScreen
 import com.openappslabs.jotter.ui.screens.homescreen.HomeScreen
 import com.openappslabs.jotter.ui.screens.notedetailscreen.NoteDetailScreen
 import com.openappslabs.jotter.ui.screens.privacypolicyscreen.PrivacyPolicyScreen
+import com.openappslabs.jotter.ui.screens.securityscreen.SecurityScreen
 import com.openappslabs.jotter.ui.screens.settingsscreen.SettingsScreen
 import com.openappslabs.jotter.ui.screens.trashscreen.TrashScreen
 
@@ -61,12 +64,12 @@ fun AppNavHost(
         composable<AppRoutes.Settings> {
             SettingsScreen(
                 onBackClick = navController::popBackStack,
-                onManageTagsClick = { navController.navigate(AppRoutes.AddCategory) },
-                onArchiveClick = { navController.navigate(AppRoutes.Archive) },
-                onTrashClick = { navController.navigate(AppRoutes.Trash) },
                 onDataManagementClick = { navController.navigate(AppRoutes.DataManagement) },
                 onPrivacyPolicyClick = { navController.navigate(AppRoutes.PrivacyPolicy) },
-                onAboutClick = { navController.navigate(AppRoutes.About) }
+                onAboutClick = { navController.navigate(AppRoutes.About) },
+                onAppearanceClick = { navController.navigate(AppRoutes.AppearanceScreen) },
+                onMiscellaneousClick = { navController.navigate(AppRoutes.MiscellaneousScreen) },
+                onSecurityClick = { navController.navigate(AppRoutes.SecurityScreen) }
             )
         }
 
@@ -110,6 +113,23 @@ fun AppNavHost(
                 onNavigateToTrash = { navController.navigate(AppRoutes.Trash) },
                 onNavigateToHome = { navController.navigate(AppRoutes.Home) }
             )
+        }
+
+        composable<AppRoutes.AppearanceScreen> {
+            AppearanceScreen(onBackClick = navController::popBackStack)
+        }
+
+        composable<AppRoutes.MiscellaneousScreen> {
+            MiscellaneousScreen(
+                onBackClick = { navController.popBackStack() },
+                onManageTagsClick = { navController.navigate(AppRoutes.AddCategory) },
+                onArchiveClick = { navController.navigate(AppRoutes.Archive) },
+                onTrashClick = { navController.navigate(AppRoutes.Trash) }
+            )
+        }
+
+        composable<AppRoutes.SecurityScreen> {
+            SecurityScreen(onBackClick = navController::popBackStack)
         }
     }
 }
