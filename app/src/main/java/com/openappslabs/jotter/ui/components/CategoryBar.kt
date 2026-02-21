@@ -21,6 +21,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -37,6 +38,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,71 +95,77 @@ fun CategoryBar(
         }
     }
 
-    LazyRow(
-        state = listState,
+    Row(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        itemsIndexed(
-            items = displayList,
-            key = { _, category -> category }
-        ) { _, category ->
-            val isSelected = category == selectedCategory
+        LazyRow(
+            state = listState,
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            itemsIndexed(
+                items = displayList,
+                key = { _, category -> category }
+            ) { _, category ->
+                val isSelected = category == selectedCategory
 
-            FilterChip(
-                modifier = Modifier.animateItem(
-                    fadeInSpec = tween(300),
-                    fadeOutSpec = tween(300)
-                ),
-                selected = isSelected,
-                onClick = {
-                    haptics.tick()
-                    if (isSelected && category != "All") {
-                        onCategorySelect("All")
-                    } else {
-                        onCategorySelect(category)
-                    }
-                },
-                label = { Text(text = category) },
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
-
-        if (showAddButton) {
-            item(key = "AddCategory") {
                 FilterChip(
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(300),
                         fadeOutSpec = tween(300)
                     ),
-                    selected = false,
+                    selected = isSelected,
                     onClick = {
-                        haptics.click()
-                        onAddCategoryClick()
+                        haptics.tick()
+                        if (isSelected && category != "All") {
+                            onCategorySelect("All")
+                        } else {
+                            onCategorySelect(category)
+                        }
                     },
-                    label = { Text("Add") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Rounded.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        iconColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        borderColor = MaterialTheme.colorScheme.outlineVariant,
-                        enabled = true,
-                        selected = false
-                    )
+                    label = { Text(text = category) },
+                    shape = RoundedCornerShape(8.dp)
                 )
             }
+
+            if (showAddButton) {
+                item(key = "AddCategory") {
+                    FilterChip(
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = tween(300),
+                            fadeOutSpec = tween(300)
+                        ),
+                        selected = false,
+                        onClick = {
+                            haptics.click()
+                            onAddCategoryClick()
+                        },
+                        label = { Text("Add") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = MaterialTheme.colorScheme.outlineVariant,
+                            enabled = true,
+                            selected = false
+                        )
+                    )
+                }
+            }
         }
+        SortBar()
     }
 }
