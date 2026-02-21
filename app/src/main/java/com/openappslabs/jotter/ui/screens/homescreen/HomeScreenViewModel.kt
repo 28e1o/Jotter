@@ -103,7 +103,7 @@ class HomeScreenViewModel @Inject constructor(
         val isGridView: Boolean = true,
         val allAvailableCategories: List<String> = emptyList(),
         val showAddCategoryButton: Boolean = true,
-        val showSortBar: Boolean = true,
+        val showSortBar: Boolean = false,
         val isBiometricEnabled: Boolean = false,
         val dateFormat: String = "dd MMM",
         val sortType: SortType = SortType.ALPHABETICAL,
