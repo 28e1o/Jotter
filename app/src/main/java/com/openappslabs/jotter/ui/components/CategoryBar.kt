@@ -106,7 +106,10 @@ fun CategoryBar(
         LazyRow(
             state = listState,
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(start = 16.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = if (showSortBar) 0.dp else 16.dp
+            ),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
