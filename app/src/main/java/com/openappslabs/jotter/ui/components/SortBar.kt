@@ -36,9 +36,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,9 +58,13 @@ enum class SortType {
 }
 
 @Composable
-fun SortBar(modifier: Modifier = Modifier) {
-    var sortDirection by remember { mutableStateOf(SortDirection.ASCENDING) }
-    var sortType by remember { mutableStateOf(SortType.ALPHABETICAL) }
+fun SortBar(
+    modifier: Modifier = Modifier,
+    sortDirection: SortDirection,
+    sortType: SortType,
+    onSortDirectionClick: () -> Unit,
+    onSortTypeClick: () -> Unit
+) {
     val haptics = rememberJotterHaptics()
 
     Surface(
@@ -79,8 +80,7 @@ fun SortBar(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
                     .clickable {
                         haptics.tick()
-                        sortDirection = if (sortDirection == SortDirection.ASCENDING)
-                            SortDirection.DESCENDING else SortDirection.ASCENDING
+                        onSortDirectionClick()
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -114,7 +114,7 @@ fun SortBar(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
                     .clickable {
                         haptics.tick()
-                        sortType = sortType.next()
+                        onSortTypeClick()
                     },
                 contentAlignment = Alignment.Center
             ) {

@@ -2,8 +2,7 @@
  * Copyright (c) 2026 Open Apps Labs
  *
  * This file is part of Jotter
- *
- * Jotter is free software: you can redistribute it and/or modify it under the terms of the
+ * * Jotter is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Jotter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -23,12 +22,15 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.openappslabs.jotter.ui.components.SortDirection
+import com.openappslabs.jotter.ui.components.SortType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
+
 @Immutable
 data class UserPreferences(
     val isGridView: Boolean = false,
@@ -42,7 +44,9 @@ data class UserPreferences(
     val isSecureMode: Boolean = false,
     val showAddCategoryButton: Boolean = true,
     val is24HourFormat: Boolean = false,
-    val dateFormat: String = "dd MMM"
+    val dateFormat: String = "dd MMM",
+    val sortType: String = SortType.ALPHABETICAL.name,
+    val sortDirection: String = SortDirection.ASCENDING.name
 )
 
 class UserPreferencesRepository @Inject constructor(
@@ -62,6 +66,8 @@ class UserPreferencesRepository @Inject constructor(
         val SHOW_ADD_CATEGORY_BUTTON = booleanPreferencesKey("show_add_category_button")
         val IS_24_HOUR_FORMAT = booleanPreferencesKey("is_24_hour_format")
         val DATE_FORMAT = stringPreferencesKey("date_format")
+        val SORT_TYPE = stringPreferencesKey("sort_type")
+        val SORT_DIRECTION = stringPreferencesKey("sort_direction")
     }
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
         .catch { exception ->
@@ -84,7 +90,9 @@ class UserPreferencesRepository @Inject constructor(
                 isSecureMode = preferences[Keys.IS_SECURE_MODE] ?: false,
                 showAddCategoryButton = preferences[Keys.SHOW_ADD_CATEGORY_BUTTON] ?: true,
                 is24HourFormat = preferences[Keys.IS_24_HOUR_FORMAT] ?: false,
-                dateFormat = preferences[Keys.DATE_FORMAT] ?: "dd MMM"
+                dateFormat = preferences[Keys.DATE_FORMAT] ?: "dd MMM",
+                sortType = preferences[Keys.SORT_TYPE] ?: SortType.ALPHABETICAL.name,
+                sortDirection = preferences[Keys.SORT_DIRECTION] ?: SortDirection.ASCENDING.name
             )
         }
         .distinctUntilChanged()
@@ -143,5 +151,13 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setDateFormat(format: String) {
         dataStore.edit { it[Keys.DATE_FORMAT] = format }
+    }
+
+    suspend fun setSortType(sortType: String) {
+        dataStore.edit { it[Keys.SORT_TYPE] = sortType }
+    }
+
+    suspend fun setSortDirection(sortDirection: String) {
+        dataStore.edit { it[Keys.SORT_DIRECTION] = sortDirection }
     }
 }

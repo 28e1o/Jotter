@@ -2,8 +2,7 @@
  * Copyright (c) 2026 Open Apps Labs
  *
  * This file is part of Jotter
- *
- * Jotter is free software: you can redistribute it and/or modify it under the terms of the
+ * * Jotter is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
  * Jotter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
@@ -58,6 +57,10 @@ fun CategoryBar(
     onCategorySelect: (String) -> Unit,
     onAddCategoryClick: () -> Unit,
     showAddButton: Boolean,
+    sortDirection: SortDirection,
+    sortType: SortType,
+    onSortDirectionClick: () -> Unit,
+    onSortTypeClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -166,6 +169,12 @@ fun CategoryBar(
                 }
             }
         }
-        SortBar(modifier = Modifier.padding(end = 16.dp))
+        SortBar(
+            modifier = Modifier.padding(end = 16.dp),
+            sortDirection = sortDirection,
+            sortType = sortType,
+            onSortDirectionClick = onSortDirectionClick,
+            onSortTypeClick = onSortTypeClick
+        )
     }
 }
