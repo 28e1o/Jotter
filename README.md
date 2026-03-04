@@ -60,16 +60,17 @@ Get the latest version of **Jotter**:
 
 ## ✨ Features
 
-* **Material You Design:** Fully compatible with Material 3 dynamic theming.  
-* **Rich Note Taking:** Create and edit notes seamlessly.  
-* **Offline First:** All data is stored locally using Room Database.  
-* **Dark Mode & True Dark Mode:** Fully optimized dark theme support.  
-* **Lock Notes:** Secure individual notes with a PIN or pattern.  
-* **Import & Export Notes:** Backup and restore your notes easily.  
-* **Dynamic Colors:** App adapts to your system colors.  
-* **Trash & Archive:** Organize your notes without losing data.  
-* **Haptics Feedback:** Subtle feedback for interactions.  
-* **Multiple View Modes:** List, grid views for your notes.  
+* **Material You Design:** Fully compatible with Material 3 dynamic theming.
+* **Rich Note Taking:** Create and edit notes seamlessly.
+* **Offline First:** All data is stored locally using Room Database.
+* **Dark Mode & True Dark Mode:** Fully optimized dark theme support.
+* **Lock Notes:** Secure individual notes with a PIN or pattern.
+* **Import & Export Notes:** Backup and restore your notes easily.
+* **Sorting Options:** Organize notes with new sorting functionality.
+* **Dynamic Colors:** App adapts to your system colors.
+* **Trash & Archive:** Organize your notes without losing data.
+* **Haptics Feedback:** Subtle feedback for interactions.
+* **Multiple View Modes:** List, grid views for your notes.
 
 ---
 
