@@ -188,15 +188,11 @@ fun NoteDetailScreen(
                 showDiscardDialog = true
             }
         } else {
-            if (!isViewMode && uiState.isNotePersisted) {
-                isViewMode = true
-            } else {
-                onBackClick()
-            }
+            onBackClick()
         }
     }
 
-    val shouldInterceptBack = !isViewMode && (uiState.isModified || uiState.isNotePersisted)
+    val shouldInterceptBack = !isViewMode && uiState.isModified
     BackHandler(enabled = shouldInterceptBack) {
         handleBack()
     }
