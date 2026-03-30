@@ -50,6 +50,7 @@ class ArchiveScreenViewModel @Inject constructor(
         UiState(
             archivedNotes = notes,
             isGridView = prefs.isGridView,
+            dateFormat = prefs.dateFormat,
             showRestoreAllDialog = showRestore,
             showBulkActionDialog = showBulk
         )
@@ -65,6 +66,7 @@ class ArchiveScreenViewModel @Inject constructor(
     data class UiState(
         val archivedNotes: List<Note> = emptyList(),
         val isGridView: Boolean = true,
+        val dateFormat: String = "dd MMM",
         val showRestoreAllDialog: Boolean = false,
         val showBulkActionDialog: Boolean = false
     )

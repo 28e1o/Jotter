@@ -70,7 +70,15 @@ fun ArchiveScreen(
     val archivedNotes = uiState.archivedNotes
     val showDialog = uiState.showRestoreAllDialog
     val locale = Locale.getDefault()
-    val dateFormatter = remember(locale) { SimpleDateFormat("MMM dd", locale) }
+    val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
+        val format = if (!uiState.isGridView) {
+            if (uiState.dateFormat.contains("/")) "${uiState.dateFormat}/yyyy"
+            else "${uiState.dateFormat} yyyy"
+        } else {
+            uiState.dateFormat
+        }
+        SimpleDateFormat(format, locale)
+    }
 
     Scaffold(
         topBar = {
@@ -152,8 +160,7 @@ fun ArchiveScreen(
                     verticalItemSpacing = 12.dp
                 ) {
                     items(archivedNotes, key = { it.id }) { note ->
-                        // PERFORMANCE: Only re-format date when note is updated
-                        val dateStr = remember(note.updatedTime, locale) {
+                        val dateStr = remember(note.updatedTime, uiState.dateFormat, uiState.isGridView, locale) {
                             dateFormatter.format(Date(note.updatedTime))
                         }
                         NoteCard(

@@ -141,8 +141,9 @@ fun NoteDetailScreen(
 
     val locale = Locale.getDefault()
     val dateString = remember(uiState.createdTime, userPrefs.is24HourFormat, userPrefs.dateFormat, locale) {
+        val datePattern = if (userPrefs.dateFormat.contains("/")) "${userPrefs.dateFormat}/yyyy"
+        else "${userPrefs.dateFormat} yyyy"
         val timePattern = if (userPrefs.is24HourFormat) "HH:mm" else "hh:mm a"
-        val datePattern = userPrefs.dateFormat
         val pattern = "$datePattern, $timePattern"
         SimpleDateFormat(pattern, locale).format(Date(uiState.createdTime))
     }

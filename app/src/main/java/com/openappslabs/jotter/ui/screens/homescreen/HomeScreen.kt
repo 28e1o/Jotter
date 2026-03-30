@@ -68,8 +68,14 @@ fun HomeScreen(
     val listState = rememberLazyStaggeredGridState()
     val context = LocalContext.current
     val locale = Locale.getDefault()
-    val dateFormatter = remember(uiState.dateFormat, locale) {
-        SimpleDateFormat(uiState.dateFormat, locale)
+    val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
+        val format = if (!uiState.isGridView) {
+            if (uiState.dateFormat.contains("/")) "${uiState.dateFormat}/yyyy"
+            else "${uiState.dateFormat} yyyy"
+        } else {
+            uiState.dateFormat
+        }
+        SimpleDateFormat(format, locale)
     }
 
     LaunchedEffect(uiState.selectedCategory) {
@@ -134,7 +140,7 @@ fun HomeScreen(
                 verticalItemSpacing = 12.dp
             ) {
                 items(uiState.allNotes, key = { it.id }) { note ->
-                    val dateStr = remember(note.createdTime, uiState.dateFormat, locale) {
+                    val dateStr = remember(note.createdTime, uiState.dateFormat, uiState.isGridView, locale) {
                         dateFormatter.format(Date(note.createdTime))
                     }
                     NoteCard(
