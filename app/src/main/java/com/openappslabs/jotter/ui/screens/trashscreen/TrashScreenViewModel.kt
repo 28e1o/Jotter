@@ -49,6 +49,7 @@ class TrashScreenViewModel @Inject constructor(
         UiState(
             trashedNotes = notes,
             isGridView = prefs.isGridView,
+            dateFormat = prefs.dateFormat,
             showEmptyTrashDialog = showEmpty,
             showRestoreAllDialog = showRestore
         )
@@ -64,6 +65,7 @@ class TrashScreenViewModel @Inject constructor(
     data class UiState(
         val trashedNotes: List<Note> = emptyList(),
         val isGridView: Boolean = true,
+        val dateFormat: String = "dd MMM",
         val showEmptyTrashDialog: Boolean = false,
         val showRestoreAllDialog: Boolean = false
     )

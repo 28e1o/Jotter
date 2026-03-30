@@ -75,7 +75,15 @@ fun TrashScreen(
     val showRestoreDialog = uiState.showRestoreAllDialog
     
     val locale = Locale.getDefault()
-    val dateFormatter = remember(locale) { SimpleDateFormat("MMM dd", locale) }
+    val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
+        val format = if (!uiState.isGridView) {
+            if (uiState.dateFormat.contains("/")) "${uiState.dateFormat}/yyyy"
+            else "${uiState.dateFormat} yyyy"
+        } else {
+            uiState.dateFormat
+        }
+        SimpleDateFormat(format, locale)
+    }
 
     Scaffold(
         topBar = {
@@ -173,7 +181,7 @@ fun TrashScreen(
                     verticalItemSpacing = 12.dp
                 ) {
                     items(trashedNotes, key = { it.id }) { note ->
-                        val dateStr = remember(note.updatedTime, locale) {
+                        val dateStr = remember(note.updatedTime, uiState.dateFormat, uiState.isGridView, locale) {
                             dateFormatter.format(Date(note.updatedTime))
                         }
 
