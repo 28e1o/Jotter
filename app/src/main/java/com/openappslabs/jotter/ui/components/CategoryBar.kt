@@ -57,11 +57,10 @@ fun CategoryBar(
     onCategorySelect: (String) -> Unit,
     onAddCategoryClick: () -> Unit,
     showAddButton: Boolean,
-    showSortBar: Boolean,
+    showSortButton: Boolean,
     sortDirection: SortDirection,
     sortType: SortType,
-    onSortDirectionClick: () -> Unit,
-    onSortTypeClick: () -> Unit
+    onSortClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -108,7 +107,7 @@ fun CategoryBar(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
                 start = 16.dp,
-                end = if (showSortBar) 0.dp else 16.dp
+                end = if (showSortButton) 0.dp else 16.dp
             ),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -173,13 +172,10 @@ fun CategoryBar(
                 }
             }
         }
-        if (showSortBar) {
-            SortBar(
+        if (showSortButton) {
+            SortButton(
                 modifier = Modifier.padding(end = 16.dp),
-                sortDirection = sortDirection,
-                sortType = sortType,
-                onSortDirectionClick = onSortDirectionClick,
-                onSortTypeClick = onSortTypeClick
+                onClick = onSortClick
             )
         }
     }

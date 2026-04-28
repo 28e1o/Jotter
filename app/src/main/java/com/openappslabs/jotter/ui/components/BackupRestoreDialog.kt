@@ -53,7 +53,7 @@ enum class BackupDialogType {
     ERROR
 }
 
-private val DialogOuterRadius = 12.dp
+private val DialogOuterRadius = 16.dp
 private val ZeroPadding = PaddingValues(0.dp)
 
 @Composable
@@ -96,16 +96,14 @@ fun BackupRestoreDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             )
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 Row(
@@ -139,13 +137,13 @@ fun BackupRestoreDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
+                        .height(48.dp),
                     shape = RoundedCornerShape(DialogOuterRadius),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -155,7 +153,7 @@ fun BackupRestoreDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "OK",
+                        text = "Okay",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

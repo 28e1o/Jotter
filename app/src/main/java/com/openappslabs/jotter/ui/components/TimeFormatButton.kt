@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
-private val IconButtonSize = 48.dp
+private val IconButtonSize = 44.dp
 
 @Composable
 fun TimeFormatButton(

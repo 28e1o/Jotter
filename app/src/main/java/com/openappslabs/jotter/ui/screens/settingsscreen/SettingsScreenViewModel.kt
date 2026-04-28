@@ -48,7 +48,7 @@ class SettingsScreenViewModel @Inject constructor(
                 isAppLockEnabled = prefs.isAppLockEnabled,
                 isSecureMode = prefs.isSecureMode,
                 showAddCategoryButton = prefs.showAddCategoryButton,
-                showSortBar = prefs.showSortBar,
+                showSortButton = prefs.showSortButton,
                 isGridView = prefs.isGridView,
                 is24HourFormat = prefs.is24HourFormat,
                 dateFormat = prefs.dateFormat
@@ -73,7 +73,7 @@ class SettingsScreenViewModel @Inject constructor(
         val isAppLockEnabled: Boolean = false,
         val isSecureMode: Boolean = false,
         val showAddCategoryButton: Boolean = true,
-        val showSortBar: Boolean = true,
+        val showSortButton: Boolean = true,
         val isGridView: Boolean = false,
         val is24HourFormat: Boolean = false,
         val dateFormat: String = "dd MMM",
@@ -83,8 +83,8 @@ class SettingsScreenViewModel @Inject constructor(
         viewModelScope.launch { repository.setShowAddCategoryButton(show) }
     }
 
-    fun updateShowSortBar(show: Boolean) {
-        viewModelScope.launch { repository.setShowSortBar(show) }
+    fun updateShowSortButton(show: Boolean) {
+        viewModelScope.launch { repository.setShowSortButton(show) }
     }
 
     fun updateDarkMode(isEnabled: Boolean) {

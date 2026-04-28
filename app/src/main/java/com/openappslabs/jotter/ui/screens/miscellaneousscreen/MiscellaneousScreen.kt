@@ -31,6 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Vibration
@@ -108,7 +109,7 @@ fun MiscellaneousScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -180,10 +181,10 @@ fun MiscellaneousScreen(
 
                     SettingsItemSwitch(
                         icon = Icons.AutoMirrored.Filled.Sort,
-                        title = "Show sort bar",
-                        subtitle = "Show or hide sort bar on home screen",
-                        checked = uiState.showSortBar,
-                        onCheckedChange = viewModel::updateShowSortBar
+                        title = "Show sort button",
+                        subtitle = "Show or hide sort button",
+                        checked = uiState.showSortButton,
+                        onCheckedChange = viewModel::updateShowSortButton
                     )
                 }
             }

@@ -18,6 +18,7 @@ package com.openappslabs.jotter.ui.screens.homescreen
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,15 +28,20 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.openappslabs.jotter.ui.components.SortSheet
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -45,9 +51,6 @@ import com.openappslabs.jotter.ui.components.CategoryItems
 import com.openappslabs.jotter.ui.components.FAB
 import com.openappslabs.jotter.ui.components.NoteCard
 import com.openappslabs.jotter.ui.components.SearchBar
-import com.openappslabs.jotter.ui.components.SortDirection
-import com.openappslabs.jotter.ui.components.SortType
-import com.openappslabs.jotter.ui.theme.JotterTheme
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.BiometricAuthUtil
 import java.text.SimpleDateFormat
@@ -68,6 +71,9 @@ fun HomeScreen(
     val listState = rememberLazyStaggeredGridState()
     val context = LocalContext.current
     val locale = Locale.getDefault()
+
+    var showSortSheet by remember { mutableStateOf(false) }
+    val sortSheetState = rememberModalBottomSheetState()
     val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
         val format = if (!uiState.isGridView) {
             if (uiState.dateFormat.contains("/")) "${uiState.dateFormat}/yyyy"
@@ -118,24 +124,29 @@ fun HomeScreen(
                 onCategorySelect = { viewModel.selectCategory(it) },
                 onAddCategoryClick = onAddCategoryClick,
                 showAddButton = uiState.showAddCategoryButton,
-                showSortBar = uiState.showSortBar,
+                showSortButton = uiState.showSortButton,
                 modifier = Modifier.padding(bottom = 8.dp),
                 sortDirection = uiState.sortDirection,
                 sortType = uiState.sortType,
-                onSortDirectionClick = {
-                    viewModel.setSortDirection(
-                        if (uiState.sortDirection == SortDirection.ASCENDING) SortDirection.DESCENDING
-                        else SortDirection.ASCENDING
-                    )
-                },
-                onSortTypeClick = { viewModel.setSortType(uiState.sortType.next()) }
+                onSortClick = {
+                    haptics.tick()
+                    showSortSheet = true
+                }
             )
 
             LazyVerticalStaggeredGrid(
                 state = listState,
                 columns = StaggeredGridCells.Fixed(if (uiState.isGridView) 2 else 1),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(
+                        topStart = 24.dp,
+                        topEnd = 24.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )),
+                contentPadding = PaddingValues(bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalItemSpacing = 12.dp
             ) {
@@ -176,5 +187,20 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (showSortSheet) {
+        SortSheet(
+            sheetState = sortSheetState,
+            currentSortType = uiState.sortType,
+            currentSortDirection = uiState.sortDirection,
+            onSortTypeChange = {
+                viewModel.setSortType(it)
+            },
+            onSortDirectionChange = {
+                viewModel.setSortDirection(it)
+            },
+            onDismissRequest = { showSortSheet = false }
+        )
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -73,6 +75,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -127,6 +131,7 @@ fun NoteDetailScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val contentFocusRequester = remember { FocusRequester() }
 
     var isViewMode by remember(uiState.isNotePersisted, userPrefs.defaultOpenInEdit) {
         val initialViewMode = if (uiState.isNotePersisted) {
@@ -236,7 +241,7 @@ fun NoteDetailScreen(
                         Box(contentAlignment = Alignment.Center) {
                             val showCloseIcon = !isViewMode && uiState.isModified
                             Icon(
-                                imageVector = if (showCloseIcon) Icons.Default.Close else Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = if (showCloseIcon) Icons.Default.Close else Icons.Default.ChevronLeft,
                                 contentDescription = if (showCloseIcon) "Close" else "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -334,7 +339,15 @@ fun NoteDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(horizontal = 20.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        if (!isArchivedOrTrashed && !isViewMode) {
+                            contentFocusRequester.requestFocus()
+                        }
+                    }
+                    .padding(horizontal = 16.dp)
                     .navigationBarsPadding()
                     .imePadding()
             ) {
@@ -422,7 +435,9 @@ fun NoteDetailScreen(
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words
                     ),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(contentFocusRequester),
                     decorationBox = { innerTextField ->
                         Box {
                             if (uiState.title.isEmpty() && !isViewMode && !isArchivedOrTrashed) {
@@ -447,7 +462,9 @@ fun NoteDetailScreen(
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences
                     ),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(contentFocusRequester),
                     decorationBox = { innerTextField ->
                         Box {
                             if (uiState.content.isEmpty() && !isViewMode && !isArchivedOrTrashed) {

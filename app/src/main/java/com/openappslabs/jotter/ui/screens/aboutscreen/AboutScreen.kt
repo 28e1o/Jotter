@@ -16,13 +16,12 @@
 
 package com.openappslabs.jotter.ui.screens.aboutscreen
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,16 +35,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -56,40 +57,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.openappslabs.jotter.BuildConfig
-import com.openappslabs.jotter.R
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import java.time.Year
-import androidx.core.net.toUri
+import com.openappslabs.jotter.ui.components.AboutMeCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
 ) {
-    val uriHandler = LocalUriHandler.current
     val haptics = rememberJotterHaptics()
-    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
-    val primary = MaterialTheme.colorScheme.primary
-    val iconBackgroundBrush = remember(primaryContainer, primary) {
-        Brush.linearGradient(
-            colors = listOf(primaryContainer, primary.copy(alpha = 0.1f))
-        )
-    }
-    val copyrightText = remember {
-        val year = Year.now().toString()
-        "Made with ❤️ | © $year Open Apps Labs"
-    }
-    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -115,7 +101,7 @@ fun AboutScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -135,177 +121,179 @@ fun AboutScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+                .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            AboutContent()
+        }
+    }
+}
 
-            Surface(
-                shape = RoundedCornerShape(32.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shadowElevation = 8.dp,
-                tonalElevation = 8.dp,
-                modifier = Modifier.size(128.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.background(iconBackgroundBrush)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.app_icon),
-                        contentDescription = "App Icon",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(72.dp)
-                    )
-                }
-            }
+@Composable
+private fun AboutContent(
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+    val year = remember { Year.now().toString() }
+    val openGithub = remember { { uriHandler.openUri("https://github.com/OpenAppsLabs") } }
+    val openSource = remember { { uriHandler.openUri("https://github.com/OpenAppsLabs/Jotter") } }
+    val openEmail = remember { { uriHandler.openUri("mailto:openappslabs@gmail.com") } }
+    val openLicense = remember { { uriHandler.openUri("https://www.gnu.org/licenses/gpl-3.0.en.html") } }
+    val copyrightText = remember { "Open Apps Labs © $year" }
+    val appVersion = remember { BuildConfig.VERSION_NAME }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Jotter",
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onSurface
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        AboutMeCard()
+        CardSection {
+            InfoRow(
+                label = "APP",
+                value = "Jotter",
+                icon = Icons.Default.Code,
+                showChevron = false,
+                onClick = { }
             )
-            Text(
-                text = "Simple. Secure. Open.",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
+            TinyGap()
+            InfoRow(
+                label = "VERSION",
+                value = appVersion,
+                icon = Icons.Default.Info,
+                showChevron = false,
+                onClick = { }
             )
+        }
 
-            Spacer(modifier = Modifier.height(32.dp))
+        CardSection {
+            InfoRow(
+                label = "ORGANIZATION",
+                value = "Open Apps Labs",
+                icon = Icons.Default.Person,
+                onClick = openGithub
+            )
+            TinyGap()
+            InfoRow(
+                label = "SOURCE CODE",
+                value = "Jotter",
+                icon = Icons.Default.Code,
+                onClick = openSource
+            )
+        }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f)
-                ),
-                shape = RoundedCornerShape(28.dp)
-            ) {
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    AboutItem(label = "Version", value = BuildConfig.VERSION_NAME)
-                    AboutDivider()
-                    AboutItem(label = "Developer", value = "Open Apps Labs")
-                    AboutDivider()
-                    AboutItem(label = "License", value = "GNU GPL v3.0")
-                }
-            }
+        CardSection {
+            InfoRow(
+                label = "SUPPORT",
+                value = "openappslabs@gmail.com",
+                icon = Icons.Default.Email,
+                onClick = openEmail
+            )
+            TinyGap()
+            InfoRow(
+                label = "LICENSE",
+                value = "GNU GPL v3",
+                icon = Icons.Default.Gavel,
+                onClick = openLicense
+            )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f)
-                ),
-                shape = RoundedCornerShape(28.dp)
-            ) {
-                Column {
-                    ActionItem(
-                        icon = Icons.Outlined.Code,
-                        label = "Source Code",
-                        onClick = { uriHandler.openUri("https://github.com/openappslabs/Jotter") }
-                    )
-                    AboutDivider()
-                    ActionItem(
-                        icon = Icons.Outlined.Gavel,
-                        label = "View License",
-                        onClick = { uriHandler.openUri("https://www.gnu.org/licenses/gpl-3.0.en.html") }
-                    )
-                    AboutDivider()
-                    ActionItem(
-                        icon = Icons.Outlined.Email,
-                        label = "Support",
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = "mailto:openappslabs@gmail.com".toUri()
-                            }
-                            try {
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                            }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = copyrightText,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                modifier = Modifier.padding(vertical = 16.dp),
-                textAlign = TextAlign.Center
+        CardSection {
+            InfoRow(
+                label = "MADE WITH LOVE",
+                value = copyrightText,
+                icon = Icons.Default.Favorite,
+                iconTint = Color.Red,
+                showChevron = false,
+                onClick = { }
             )
         }
     }
 }
 
 @Composable
-private fun AboutItem(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+private fun CardSection(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(0.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(modifier = Modifier.fillMaxWidth(), content = content)
     }
 }
 
 @Composable
-private fun ActionItem(icon: ImageVector, label: String, onClick: () -> Unit) {
-    val haptics = rememberJotterHaptics()
+private fun InfoRow(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
+    showChevron: Boolean = true,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                haptics.tick()
-                onClick()
-            }
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
-        )
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+                tint = iconTint
+            )
+        }
+
         Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 10.sp,
+                    letterSpacing = 1.5.sp
+                ),
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                letterSpacing = (-0.25).sp,
+                lineHeight = 22.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        if (showChevron) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.outline
+            )
+        }
     }
 }
 
 @Composable
-private fun AboutDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+fun TinyGap() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(2.dp)
+            .background(MaterialTheme.colorScheme.background)
     )
 }

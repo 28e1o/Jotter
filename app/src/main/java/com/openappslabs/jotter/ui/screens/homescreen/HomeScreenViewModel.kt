@@ -35,6 +35,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.comparisons.compareByDescending
+import kotlin.comparisons.thenBy
+import kotlin.comparisons.thenByDescending
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
@@ -52,9 +55,13 @@ class HomeScreenViewModel @Inject constructor(
         _selectedCategory,
         _searchQuery
     ) { notes, categories, prefs, selectedCategory, searchQuery ->
+        val activeCategories = categories.filter { category ->
+            notes.any { it.category == category }
+        }
+
         val validatedCategory = if (selectedCategory != "All" && 
             !listOf("Pinned", "Locked").contains(selectedCategory) && 
-            !categories.contains(selectedCategory)) {
+            !activeCategories.contains(selectedCategory)) {
             "All"
         } else {
             selectedCategory
@@ -80,23 +87,23 @@ class HomeScreenViewModel @Inject constructor(
         val sortedNotes = when (sortType) {
             SortType.ALPHABETICAL -> {
                 if (sortDirection == SortDirection.ASCENDING) {
-                    filteredNotes.sortedBy { it.title }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenBy { it.title })
                 } else {
-                    filteredNotes.sortedByDescending { it.title }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenByDescending { it.title })
                 }
             }
             SortType.CREATED -> {
                 if (sortDirection == SortDirection.ASCENDING) {
-                    filteredNotes.sortedBy { it.createdTime }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenBy { it.createdTime })
                 } else {
-                    filteredNotes.sortedByDescending { it.createdTime }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenByDescending { it.createdTime })
                 }
             }
             SortType.LAST_UPDATED -> {
                 if (sortDirection == SortDirection.ASCENDING) {
-                    filteredNotes.sortedBy { it.updatedTime }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenBy { it.updatedTime })
                 } else {
-                    filteredNotes.sortedByDescending { it.updatedTime }
+                    filteredNotes.sortedWith(compareByDescending<Note> { it.isPinned }.thenByDescending { it.updatedTime })
                 }
             }
         }
@@ -106,9 +113,9 @@ class HomeScreenViewModel @Inject constructor(
             selectedCategory = validatedCategory,
             searchQuery = searchQuery,
             isGridView = prefs.isGridView,
-            allAvailableCategories = categories,
+            allAvailableCategories = activeCategories,
             showAddCategoryButton = prefs.showAddCategoryButton,
-            showSortBar = prefs.showSortBar,
+            showSortButton = prefs.showSortButton,
             isBiometricEnabled = prefs.isBiometricEnabled,
             dateFormat = prefs.dateFormat,
             sortType = sortType,
@@ -130,7 +137,7 @@ class HomeScreenViewModel @Inject constructor(
         val isGridView: Boolean = true,
         val allAvailableCategories: List<String> = emptyList(),
         val showAddCategoryButton: Boolean = true,
-        val showSortBar: Boolean = false,
+        val showSortButton: Boolean = false,
         val isBiometricEnabled: Boolean = false,
         val dateFormat: String = "dd MMM",
         val sortType: SortType = SortType.ALPHABETICAL,
