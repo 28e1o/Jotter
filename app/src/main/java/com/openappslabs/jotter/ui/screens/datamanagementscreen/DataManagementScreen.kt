@@ -18,7 +18,9 @@ package com.openappslabs.jotter.ui.screens.datamanagementscreen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
@@ -49,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -143,7 +147,7 @@ fun DataManagementScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -160,10 +164,14 @@ fun DataManagementScreen(
         containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                bottom = innerPadding.calculateBottomPadding() + 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
                 SettingsGroup {
@@ -194,8 +202,6 @@ fun DataManagementScreen(
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-
             item {
                 SettingsGroup {
                     SettingsItemArrow(
@@ -216,7 +222,7 @@ fun DataManagementScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }

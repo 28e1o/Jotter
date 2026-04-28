@@ -16,20 +16,23 @@
 
 package com.openappslabs.jotter.ui.screens.privacypolicyscreen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -41,13 +44,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +84,7 @@ fun PrivacyPolicyScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
@@ -97,66 +100,78 @@ fun PrivacyPolicyScreen(
         },
         containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Last Updated: December 03, 2025",
-                style = MaterialTheme.typography.bodySmall,
-                fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 24.dp),
-                textAlign = TextAlign.Center
-            )
+            item {
+                PolicyCard(
+                    title = "1. Introduction",
+                    content = "Welcome to Jotter! I respect your privacy. This policy explains how I handle data in the app. If you have any questions, feel free to contact me."
+                )
+            }
 
-            PolicySection(
-                title = "1. Introduction",
-                content = "Welcome to Jotter! I respect your privacy. This policy explains how I handle data in the app. If you have any questions, feel free to contact me."
-            )
+            item {
+                PolicyCard(
+                    title = "2. Information I Collect",
+                    content = "Jotter does not collect any personal data. All notes, categories, and preferences are stored locally on your device. No data is shared."
+                )
+            }
 
-            PolicySection(
-                title = "2. Information I Collect",
-                content = "Jotter does not collect any personal data. All notes, categories, and preferences are stored locally on your device. No data is shared."
-            )
+            item {
+                PolicyCard(
+                    title = "3. Use of Your Information",
+                    content = "I do not use, share, or process any of your data. Your notes and information remain on your device and are used only for the functionality of the app."
+                )
+            }
 
-            PolicySection(
-                title = "3. Use of Your Information",
-                content = "I do not use, share, or process any of your data. Your notes and information remain on your device and are used only for the functionality of the app."
-            )
+            item {
+                PolicyCard(
+                    title = "4. Third-Party Services",
+                    content = "Jotter does not use third-party services, including analytics, ads, or data collection tools. Your data stays private and local to your device."
+                )
+            }
 
-            PolicySection(
-                title = "4. Third-Party Services",
-                content = "Jotter does not use third-party services, including analytics, ads, or data collection tools. Your data stays private and local to your device."
-            )
+            item {
+                PolicyCard(
+                    title = "5. Contact Me",
+                    content = "If you have any questions or concerns, you can reach out to me via GitHub."
+                )
+            }
 
-            PolicySection(
-                title = "5. Contact Me",
-                content = "If you have any questions or concerns, you can reach out to me via GitHub."
-            )
+            item {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Last Updated: December 03, 2025",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
 
 @Composable
-fun PolicySection(title: String, content: String) {
-    val bodyMedium = MaterialTheme.typography.bodyMedium
-    val rememberedLineHeight = remember(bodyMedium.lineHeight) {
-        bodyMedium.lineHeight * 1.5
-    }
-
+private fun PolicyCard(
+    title: String,
+    content: String
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        ),
-        shape = RoundedCornerShape(16.dp)
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -165,12 +180,11 @@ fun PolicySection(title: String, content: String) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = content,
-                style = bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = rememberedLineHeight
+                lineHeight = 22.sp
             )
         }
     }

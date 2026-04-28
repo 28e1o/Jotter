@@ -61,7 +61,7 @@ private val DateFormats = listOf(
     "MMM dd",       // Dec 10
     "dd/MM",        // 10/12
 )
-private val IconButtonSize = 48.dp
+private val IconButtonSize = 44.dp
 private val TotalWidth = IconButtonSize * 2
 private val OuterRadius = 25.dp
 private val ZeroPadding = PaddingValues(0.dp)

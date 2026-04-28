@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -116,7 +117,7 @@ fun SecurityScreen(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Back",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)

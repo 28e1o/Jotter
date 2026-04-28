@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -31,15 +32,19 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -92,23 +97,22 @@ private fun SettingsItemBase(
     icon: ImageVector,
     title: String,
     subtitle: String? = null,
-    iconColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    iconColor: Color = MaterialTheme.colorScheme.primary,
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable RowScope.() -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 80.dp)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .then(modifier)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
             modifier = Modifier.size(40.dp),
-            shape = RoundedCornerShape(10.dp),
-            color = iconColor.copy(alpha = 0.1f)
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -161,22 +165,27 @@ fun SettingsItemSwitch(
     )
 
     SettingsItemBase(icon = icon, title = title, subtitle = subtitle) {
-        Switch(
-            checked = checked,
-            onCheckedChange = {
-                haptics.tick()
-                onCheckedChange(it)
-            },
-            colors = switchColors,
-            thumbContent = {
-                val thumbIcon = if (checked) Icons.Filled.Check else Icons.Filled.Close
-                Icon(
-                    imageVector = thumbIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
-                )
-            }
-        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Switch(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .scale(0.95f),
+                checked = checked,
+                onCheckedChange = {
+                    haptics.tick()
+                    onCheckedChange(it)
+                },
+                colors = switchColors,
+                thumbContent = {
+                    val thumbIcon = if (checked) Icons.Filled.Check else Icons.Filled.Close
+                    Icon(
+                        imageVector = thumbIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -205,7 +214,7 @@ fun SettingsItemArrow(
     isDestructive: Boolean = false
 ) {
     val haptics = rememberJotterHaptics()
-    val color = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+    val color = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
 
     SettingsItemBase(
         modifier = Modifier.clickable {
