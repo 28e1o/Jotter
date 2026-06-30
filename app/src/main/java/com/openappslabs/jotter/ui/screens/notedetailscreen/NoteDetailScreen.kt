@@ -216,7 +216,8 @@ fun NoteDetailScreen(
                             onToggle = {
                                 haptics.tick()
                                 isViewMode = !isViewMode
-                            }
+                            },
+                            iconButtonSize = 48.dp
                         )
                     } else {
                         Text(

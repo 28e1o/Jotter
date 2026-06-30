@@ -46,12 +46,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
-private val IconButtonSize = 44.dp
-
 @Composable
 fun EditViewButton(
     isEditing: Boolean,
     onToggle: () -> Unit,
+    iconButtonSize: Dp = 44.dp,
     modifier: Modifier = Modifier
 ) {
     val haptics = rememberJotterHaptics()
@@ -67,22 +66,22 @@ fun EditViewButton(
     }
 
     val offsetX by animateDpAsState(
-        targetValue = if (isEditing) 0.dp else IconButtonSize,
+        targetValue = if (isEditing) 0.dp else iconButtonSize,
         animationSpec = springSpec,
         label = "SlidingIndicatorOffset"
     )
 
     Box(
         modifier = modifier
-            .width(IconButtonSize * 2)
-            .height(IconButtonSize)
+            .width(iconButtonSize * 2)
+            .height(iconButtonSize)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         Box(
             modifier = Modifier
                 .graphicsLayer { translationX = offsetX.toPx() }
-                .size(IconButtonSize)
+                .size(iconButtonSize)
                 .clip(CircleShape)
                 .background(activeContainerColor)
         )

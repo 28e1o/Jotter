@@ -47,16 +47,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import android.widget.Toast
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openappslabs.jotter.ui.components.NoteCard
 import com.openappslabs.jotter.ui.components.RestoreAllDialog
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
+import com.openappslabs.jotter.utils.BiometricAuthUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -70,6 +74,7 @@ fun ArchiveScreen(
 ) {
     val haptics = rememberJotterHaptics()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     val archivedNotes = uiState.archivedNotes
     val showDialog = uiState.showRestoreAllDialog
     val locale = Locale.getDefault()
@@ -176,10 +181,25 @@ fun ArchiveScreen(
                             note = note,
                             date = dateStr,
                             isGridView = uiState.isGridView,
-                            onClick = { 
+                            onClick = {
                                 haptics.tick()
                                 viewModel.onNoteClicked(note.id)
-                                onNoteClick(note.id) 
+                                if (note.isLocked && uiState.isBiometricEnabled) {
+                                    val activity = context as? FragmentActivity
+                                    if (activity != null) {
+                                        BiometricAuthUtil.authenticate(
+                                            activity = activity,
+                                            title = "Unlock Note",
+                                            subtitle = "Authenticate to view this locked note",
+                                            onSuccess = { onNoteClick(note.id) },
+                                            onError = { Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show() }
+                                        )
+                                    } else {
+                                        onNoteClick(note.id)
+                                    }
+                                } else {
+                                    onNoteClick(note.id)
+                                }
                             }
                         )
                     }
