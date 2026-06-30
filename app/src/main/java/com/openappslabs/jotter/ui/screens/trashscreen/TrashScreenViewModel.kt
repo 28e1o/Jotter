@@ -50,6 +50,7 @@ class TrashScreenViewModel @Inject constructor(
             trashedNotes = notes,
             isGridView = prefs.isGridView,
             dateFormat = prefs.dateFormat,
+            isBiometricEnabled = prefs.isBiometricEnabled,
             showEmptyTrashDialog = showEmpty,
             showRestoreAllDialog = showRestore
         )
@@ -66,6 +67,7 @@ class TrashScreenViewModel @Inject constructor(
         val trashedNotes: List<Note> = emptyList(),
         val isGridView: Boolean = true,
         val dateFormat: String = "dd MMM",
+        val isBiometricEnabled: Boolean = false,
         val showEmptyTrashDialog: Boolean = false,
         val showRestoreAllDialog: Boolean = false
     )

@@ -51,6 +51,7 @@ class ArchiveScreenViewModel @Inject constructor(
             archivedNotes = notes,
             isGridView = prefs.isGridView,
             dateFormat = prefs.dateFormat,
+            isBiometricEnabled = prefs.isBiometricEnabled,
             showRestoreAllDialog = showRestore,
             showBulkActionDialog = showBulk
         )
@@ -67,6 +68,7 @@ class ArchiveScreenViewModel @Inject constructor(
         val archivedNotes: List<Note> = emptyList(),
         val isGridView: Boolean = true,
         val dateFormat: String = "dd MMM",
+        val isBiometricEnabled: Boolean = false,
         val showRestoreAllDialog: Boolean = false,
         val showBulkActionDialog: Boolean = false
     )
