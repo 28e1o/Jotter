@@ -69,8 +69,10 @@ class HomeScreenViewModel @Inject constructor(
 
         val filteredNotes = if (searchQuery.isNotBlank()) {
             notes.filter {
-                it.title.contains(searchQuery, ignoreCase = true) ||
+                !it.isLocked && (
+                    it.title.contains(searchQuery, ignoreCase = true) ||
                         it.content.contains(searchQuery, ignoreCase = true)
+                )
             }
         } else {
             when (validatedCategory) {
