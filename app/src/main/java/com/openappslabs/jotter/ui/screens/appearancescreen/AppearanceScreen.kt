@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Brightness2
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ColorLens
@@ -57,6 +56,7 @@ import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItem
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemEditView
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemGridView
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemSwitch
+import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemTheme
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemTimeFormat
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.TinyGap
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
@@ -133,12 +133,12 @@ fun AppearanceScreen(
         ) {
             item {
                 SettingsGroup {
-                    SettingsItemSwitch(
+                    SettingsItemTheme(
                         icon = Icons.Default.DarkMode,
-                        title = "Dark theme",
-                        subtitle = "Reduce eye strain",
-                        checked = uiState.isDarkMode,
-                        onCheckedChange = viewModel::updateDarkMode
+                        title = "App theme",
+                        subtitle = "Select app appearance",
+                        selectedTheme = uiState.appTheme,
+                        onThemeSelected = viewModel::updateAppTheme
                     )
                     TinyGap()
 
