@@ -49,9 +49,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.openappslabs.jotter.data.model.AppTheme
 import com.openappslabs.jotter.ui.components.DateFormatButton
 import com.openappslabs.jotter.ui.components.EditViewButton
 import com.openappslabs.jotter.ui.components.GridListButton
+import com.openappslabs.jotter.ui.components.ThemeSelector
 import com.openappslabs.jotter.ui.components.TimeFormatButton
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.AuthSupport
@@ -302,6 +304,67 @@ fun SettingsItemEditView(
         EditViewButton(
             isEditing = isEditDefault,
             onToggle = { onToggleEditDefault(!isEditDefault) }
+        )
+    }
+}
+
+@Composable
+fun SettingsItemTheme(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    selectedTheme: AppTheme,
+    onThemeSelected: (AppTheme) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        ThemeSelector(
+            selectedTheme = selectedTheme,
+            onThemeSelected = onThemeSelected
         )
     }
 }

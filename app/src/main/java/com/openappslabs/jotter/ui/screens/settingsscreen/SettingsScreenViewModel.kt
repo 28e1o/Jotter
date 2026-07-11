@@ -19,6 +19,7 @@ package com.openappslabs.jotter.ui.screens.settingsscreen
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.openappslabs.jotter.data.model.AppTheme
 import com.openappslabs.jotter.data.repository.NotesRepository
 import com.openappslabs.jotter.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +40,7 @@ class SettingsScreenViewModel @Inject constructor(
         .map { prefs ->
             UiState(
                 isLoading = false,
-                isDarkMode = prefs.isDarkMode,
+                appTheme = prefs.appTheme,
                 isTrueBlackEnabled = prefs.isTrueBlackEnabled,
                 isDynamicColor = prefs.isDynamicColor,
                 defaultOpenInEdit = prefs.defaultOpenInEdit,
@@ -64,7 +65,7 @@ class SettingsScreenViewModel @Inject constructor(
     @Immutable
     data class UiState(
         val isLoading: Boolean = true,
-        val isDarkMode: Boolean = false,
+        val appTheme: AppTheme = AppTheme.SYSTEM,
         val isTrueBlackEnabled: Boolean = false,
         val isDynamicColor: Boolean = true,
         val defaultOpenInEdit: Boolean = false,
@@ -87,8 +88,8 @@ class SettingsScreenViewModel @Inject constructor(
         viewModelScope.launch { repository.setShowSortButton(show) }
     }
 
-    fun updateDarkMode(isEnabled: Boolean) {
-        viewModelScope.launch { repository.setDarkMode(isEnabled) }
+    fun updateAppTheme(theme: AppTheme) {
+        viewModelScope.launch { repository.setAppTheme(theme) }
     }
 
     fun updateTrueBlackMode(isEnabled: Boolean) {

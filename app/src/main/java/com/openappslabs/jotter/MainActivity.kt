@@ -38,6 +38,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.openappslabs.jotter.data.model.AppTheme
 import com.openappslabs.jotter.data.repository.UserPreferencesRepository
 import com.openappslabs.jotter.navigation.AppNavHost
 import com.openappslabs.jotter.ui.theme.JotterTheme
@@ -59,6 +60,13 @@ class MainActivity : FragmentActivity() {
             val userPreferences by userPreferencesRepository.userPreferencesFlow.collectAsStateWithLifecycle(initialValue = null)
             val lifecycleOwner = LocalLifecycleOwner.current
             val systemInDarkTheme = isSystemInDarkTheme()
+
+            val darkTheme = when (userPreferences?.appTheme) {
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+                AppTheme.SYSTEM -> systemInDarkTheme
+                null -> systemInDarkTheme
+            }
             
             var isAppAuthenticated by rememberSaveable { mutableStateOf(false) }
             var authTrigger by rememberSaveable { mutableIntStateOf(0) }
@@ -110,7 +118,7 @@ class MainActivity : FragmentActivity() {
             }
 
             JotterTheme(
-                isDarkTheme = userPreferences?.isDarkMode ?: systemInDarkTheme,
+                isDarkTheme = darkTheme,
                 isTrueBlackEnabled = userPreferences?.isTrueBlackEnabled ?: false,
                 isDynamicColor = userPreferences?.isDynamicColor ?: true,
                 isHapticEnabled = userPreferences?.isHapticEnabled ?: true

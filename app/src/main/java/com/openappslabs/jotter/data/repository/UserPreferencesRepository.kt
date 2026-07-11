@@ -24,6 +24,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.openappslabs.jotter.ui.components.SortDirection
 import com.openappslabs.jotter.ui.components.SortType
+import com.openappslabs.jotter.data.model.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -34,7 +35,7 @@ import javax.inject.Inject
 @Immutable
 data class UserPreferences(
     val isGridView: Boolean = false,
-    val isDarkMode: Boolean = false,
+    val appTheme: AppTheme = AppTheme.SYSTEM,
     val isTrueBlackEnabled: Boolean = false,
     val isDynamicColor: Boolean = true,
     val defaultOpenInEdit: Boolean = false,
@@ -56,7 +57,7 @@ class UserPreferencesRepository @Inject constructor(
 
     private object Keys {
         val IS_GRID_VIEW = booleanPreferencesKey("is_grid_view")
-        val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
+        val APP_THEME = stringPreferencesKey("app_theme")
         val IS_TRUE_BLACK = booleanPreferencesKey("is_true_black")
         val IS_DYNAMIC_COLOR = booleanPreferencesKey("is_dynamic_color")
         val DEFAULT_OPEN_EDIT = booleanPreferencesKey("default_open_edit")
@@ -82,7 +83,9 @@ class UserPreferencesRepository @Inject constructor(
         .map { preferences ->
             UserPreferences(
                 isGridView = preferences[Keys.IS_GRID_VIEW] ?: false,
-                isDarkMode = preferences[Keys.IS_DARK_MODE] ?: false,
+                appTheme = AppTheme.valueOf(
+                    preferences[Keys.APP_THEME] ?: AppTheme.SYSTEM.name
+                ),
                 isTrueBlackEnabled = preferences[Keys.IS_TRUE_BLACK] ?: false,
                 isDynamicColor = preferences[Keys.IS_DYNAMIC_COLOR] ?: true,
                 defaultOpenInEdit = preferences[Keys.DEFAULT_OPEN_EDIT] ?: false,
@@ -104,8 +107,8 @@ class UserPreferencesRepository @Inject constructor(
         dataStore.edit { it[Keys.IS_GRID_VIEW] = isGrid }
     }
 
-    suspend fun setDarkMode(enabled: Boolean) {
-        dataStore.edit { it[Keys.IS_DARK_MODE] = enabled }
+    suspend fun setAppTheme(theme: AppTheme) {
+        dataStore.edit { it[Keys.APP_THEME] = theme.name }
     }
 
     suspend fun setTrueBlack(enabled: Boolean) {
