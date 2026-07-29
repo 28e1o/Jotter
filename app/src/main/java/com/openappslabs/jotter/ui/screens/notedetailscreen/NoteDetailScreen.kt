@@ -17,6 +17,8 @@
 package com.openappslabs.jotter.ui.screens.notedetailscreen
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -65,6 +67,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -94,10 +97,11 @@ import com.openappslabs.jotter.ui.components.CategorySheet
 import com.openappslabs.jotter.ui.components.DeleteNoteDialog
 import com.openappslabs.jotter.ui.components.DiscardChangesDialog
 import com.openappslabs.jotter.ui.components.EditViewButton
-import com.openappslabs.jotter.ui.components.NoteActionDialog
+import com.openappslabs.jotter.ui.components.NoteActionSheet
 import com.openappslabs.jotter.ui.components.PinLockBar
 import com.openappslabs.jotter.ui.components.RestoreNoteDialog
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
+import com.openappslabs.jotter.utils.NoteUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -125,13 +129,29 @@ fun NoteDetailScreen(
     var showCategorySheet by remember { mutableStateOf(false) }
     var showRestoreNoteDialog by remember { mutableStateOf(false) }
     var pendingDiscard by remember { mutableStateOf(false) }
-    var showNoteActionDialog by remember { mutableStateOf(false) }
+    var showNoteActionSheet by remember { mutableStateOf(false) }
+    val noteActionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val contentFocusRequester = remember { FocusRequester() }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain"),
+        onResult = { uri ->
+            uri?.let {
+                val textToSave = NoteUtils.formatNote(uiState.title, uiState.content)
+                val success = NoteUtils.saveTextToUri(context, it, textToSave)
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        if (success) "Note exported successfully" else "Failed to export note"
+                    )
+                }
+            }
+        }
+    )
 
     var isViewMode by remember(uiState.isNotePersisted, userPrefs.defaultOpenInEdit) {
         val initialViewMode = if (uiState.isNotePersisted) {
@@ -151,6 +171,14 @@ fun NoteDetailScreen(
         val timePattern = if (userPrefs.is24HourFormat) "HH:mm" else "hh:mm a"
         val pattern = "$datePattern, $timePattern"
         SimpleDateFormat(pattern, locale).format(Date(uiState.createdTime))
+    }
+
+    val modifiedDateString = remember(uiState.lastEdited, userPrefs.is24HourFormat, userPrefs.dateFormat, locale) {
+        val datePattern = if (userPrefs.dateFormat.contains("/")) "${userPrefs.dateFormat}/yyyy"
+        else "${userPrefs.dateFormat} yyyy"
+        val timePattern = if (userPrefs.is24HourFormat) "HH:mm" else "hh:mm a"
+        val pattern = "$datePattern, $timePattern"
+        SimpleDateFormat(pattern, locale).format(Date(uiState.lastEdited))
     }
 
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
@@ -277,7 +305,7 @@ fun NoteDetailScreen(
                         Surface(
                             onClick = {
                                 haptics.click()
-                                showNoteActionDialog = true
+                                showNoteActionSheet = true
                             },
                             shape = CircleShape,
                             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -572,24 +600,75 @@ fun NoteDetailScreen(
         )
     }
 
-    if (showNoteActionDialog) {
-        NoteActionDialog(
-            onDismiss = {
-                haptics.click()
-                showNoteActionDialog = false
+    if (showNoteActionSheet) {
+        NoteActionSheet(
+            sheetState = noteActionSheetState,
+            scope = scope,
+            createdDate = dateString,
+            modifiedDate = modifiedDateString,
+            wordCount = NoteUtils.countWords(uiState.content),
+            charCount = NoteUtils.countCharacters(uiState.content),
+            isPinned = uiState.isPinned,
+            isLocked = uiState.isLocked,
+            onDeleteClick = {
+                haptics.heavy()
+                showNoteActionSheet = false
+                viewModel.deleteNote()
+                onBackClick()
             },
-            onArchiveConfirm = {
+            onArchiveClick = {
                 haptics.tick()
-                showNoteActionDialog = false
+                showNoteActionSheet = false
                 viewModel.archiveNote()
                 onBackClick()
             },
-            onDeleteConfirm = {
-                haptics.heavy()
-                showNoteActionDialog = false
-                viewModel.deleteNote()
-                onBackClick()
-            }
+            onShareClick = {
+                haptics.click()
+                val textToShare = NoteUtils.formatNote(uiState.title, uiState.content)
+                NoteUtils.shareNote(context, textToShare)
+                showNoteActionSheet = false
+            },
+            onDuplicateClick = {
+                haptics.click()
+                viewModel.duplicateNote { newId ->
+                    showNoteActionSheet = false
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Note duplicated")
+                    }
+                }
+            },
+            onExportClick = {
+                haptics.click()
+                showNoteActionSheet = false
+                val fileName = if (uiState.title.isNotBlank()) "${uiState.title}.txt" else "JotterNote.txt"
+                exportLauncher.launch(fileName)
+            },
+            onCopyClick = {
+                haptics.success()
+                val textToCopy = NoteUtils.formatNote(uiState.title, uiState.content)
+                NoteUtils.copyToClipboard(context, textToCopy)
+                showNoteActionSheet = false
+            },
+            onPinClick = {
+                haptics.tick()
+                viewModel.togglePin()
+            },
+            onLockClick = {
+                haptics.tick()
+                if (userPrefs.isBiometricEnabled) {
+                    viewModel.toggleLock()
+                } else {
+                    scope.launch {
+                        if (snackbarHostState.currentSnackbarData == null) {
+                            snackbarHostState.showSnackbar(
+                                message = "Enable Note Lock in Settings to use this feature",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                }
+            },
+            onDismissRequest = { showNoteActionSheet = false }
         )
     }
 
