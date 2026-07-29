@@ -274,4 +274,23 @@ class NoteDetailViewModel @Inject constructor(
             loadNote(noteId)
         }
     }
+
+    fun duplicateNote(onComplete: (Int) -> Unit) {
+        viewModelScope.launch {
+            val current = uiState.value
+            val newTitle = if (current.title.isNotBlank()) "Copy of ${current.title}" else "Copy of Untitled"
+            val duplicatedNote = Note(
+                id = 0,
+                title = newTitle,
+                content = current.content,
+                category = current.category,
+                isPinned = false,
+                isLocked = false,
+                isArchived = false,
+                isTrashed = false
+            )
+            val newId = notesRepository.addNote(duplicatedNote).toInt()
+            onComplete(newId)
+        }
+    }
 }
