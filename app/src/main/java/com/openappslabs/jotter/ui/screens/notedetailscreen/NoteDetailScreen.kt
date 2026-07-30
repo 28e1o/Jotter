@@ -19,11 +19,6 @@ package com.openappslabs.jotter.ui.screens.notedetailscreen
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,7 +43,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Close
@@ -98,7 +92,6 @@ import com.openappslabs.jotter.ui.components.DeleteNoteDialog
 import com.openappslabs.jotter.ui.components.DiscardChangesDialog
 import com.openappslabs.jotter.ui.components.EditViewButton
 import com.openappslabs.jotter.ui.components.NoteActionSheet
-import com.openappslabs.jotter.ui.components.PinLockBar
 import com.openappslabs.jotter.ui.components.RestoreNoteDialog
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.NoteUtils
@@ -107,6 +100,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,9 +108,6 @@ fun NoteDetailScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onManageCategoryClick: () -> Unit = {},
-    onNavigateToArchive: () -> Unit,
-    onNavigateToTrash: () -> Unit,
-    onNavigateToHome: () -> Unit,
     viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
     val haptics = rememberJotterHaptics()
@@ -402,7 +393,7 @@ fun NoteDetailScreen(
                                         focusManager.clearFocus()
                                         keyboardController?.hide()
                                         scope.launch {
-                                            delay(200)
+                                            delay(200.milliseconds)
                                             showCategorySheet = true
                                         }
                                     } else {
@@ -514,37 +505,6 @@ fun NoteDetailScreen(
                 if (isViewMode && uiState.isNotePersisted && !isArchivedOrTrashed) {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-            }
-
-            val showBottomBar = isViewMode && uiState.isNotePersisted && !isArchivedOrTrashed && (scrollState.value == 0 || scrollState.maxValue == 0)
-            AnimatedVisibility(
-                visible = showBottomBar,
-                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = 16.dp)
-            ) {
-                PinLockBar(
-                    isPinned = uiState.isPinned,
-                    isLocked = uiState.isLocked,
-                    onTogglePin = { viewModel.togglePin() },
-                    onToggleLock = {
-                        if (userPrefs.isBiometricEnabled) {
-                            viewModel.toggleLock()
-                        } else {
-                            scope.launch {
-                                if (snackbarHostState.currentSnackbarData == null) {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Enable Note Lock in Settings to use this feature",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
-                        }
-                    }
-                )
             }
         }
     }
