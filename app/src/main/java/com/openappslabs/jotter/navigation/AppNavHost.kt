@@ -108,10 +108,7 @@ fun AppNavHost(
                 onBackClick = navController::popBackStack,
                 onManageCategoryClick = {
                     navController.navigate(AppRoutes.AddCategory)
-                },
-                onNavigateToArchive = { navController.navigate(AppRoutes.Archive) },
-                onNavigateToTrash = { navController.navigate(AppRoutes.Trash) },
-                onNavigateToHome = { navController.navigate(AppRoutes.Home) }
+                }
             )
         }
 

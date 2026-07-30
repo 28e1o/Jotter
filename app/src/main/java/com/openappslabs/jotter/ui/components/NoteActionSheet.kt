@@ -64,6 +64,7 @@ fun NoteActionSheet(
     modifiedDate: String,
     wordCount: Int,
     charCount: Int,
+    category: String,
     isPinned: Boolean,
     isLocked: Boolean,
     onDeleteClick: () -> Unit,
@@ -74,6 +75,7 @@ fun NoteActionSheet(
     onCopyClick: () -> Unit,
     onPinClick: () -> Unit,
     onLockClick: () -> Unit,
+    onCategoryClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -95,70 +97,77 @@ fun NoteActionSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    ActionButton(
-                        icon = Icons.Default.Delete,
-                        text = "Delete",
-                        onClick = onDeleteClick,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ActionButton(
-                        icon = Icons.Default.Archive,
-                        text = "Archive",
-                        onClick = onArchiveClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    ActionButton(
-                        icon = Icons.Default.Share,
-                        text = "Share",
-                        onClick = onShareClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        text = "Duplicate",
-                        onClick = onDuplicateClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    ActionButton(
-                        icon = Icons.Default.Description,
-                        text = "Export",
-                        onClick = onExportClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ActionButton(
-                        icon = Icons.AutoMirrored.Filled.Assignment,
-                        text = "Copy",
-                        onClick = onCopyClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    ActionButton(
-                        icon = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                        text = if (isPinned) "Unpin" else "Pin",
-                        onClick = onPinClick,
-                        isActive = isPinned,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    ActionButton(
-                        icon = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                        text = if (isLocked) "Unlock" else "Lock",
-                        onClick = onLockClick,
-                        isActive = isLocked,
-                        modifier = Modifier.weight(1f)
-                    )
+                ActionSection {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            ActionButton(
+                                icon = Icons.Default.Delete,
+                                text = "Delete",
+                                onClick = onDeleteClick,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            ActionButton(
+                                icon = Icons.Default.Archive,
+                                text = "Archive",
+                                onClick = onArchiveClick,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            ActionButton(
+                                icon = Icons.Default.Share,
+                                text = "Share",
+                                onClick = onShareClick,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            ActionButton(
+                                icon = Icons.Default.ContentCopy,
+                                text = "Duplicate",
+                                onClick = onDuplicateClick,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            ActionButton(
+                                icon = Icons.Default.Description,
+                                text = "Export",
+                                onClick = onExportClick,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            ActionButton(
+                                icon = Icons.AutoMirrored.Filled.Assignment,
+                                text = "Copy",
+                                onClick = onCopyClick,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            ActionButton(
+                                icon = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                                text = if (isPinned) "Unpin" else "Pin",
+                                onClick = onPinClick,
+                                isActive = isPinned,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            ActionButton(
+                                icon = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                                text = if (isLocked) "Unlock" else "Lock",
+                                onClick = onLockClick,
+                                isActive = isLocked,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -169,8 +178,28 @@ fun NoteActionSheet(
                 modifiedDate = modifiedDate,
                 wordCount = wordCount,
                 charCount = charCount,
+                category = category,
+                onCategoryClick = onCategoryClick,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun ActionSection(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        shape = RoundedCornerShape(24.dp),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            content()
         }
     }
 }
@@ -184,7 +213,7 @@ fun ActionButton(
     color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     isActive: Boolean = false
 ) {
-    val containerColor = if (isActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceContainer
+    val containerColor = if (isActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceContainerHigh
     val contentColor = if (isActive) MaterialTheme.colorScheme.primary else color
 
     Surface(
@@ -195,7 +224,7 @@ fun ActionButton(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                .padding(horizontal = 12.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -204,7 +233,7 @@ fun ActionButton(
                 tint = contentColor,
                 modifier = Modifier.size(22.dp)
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
