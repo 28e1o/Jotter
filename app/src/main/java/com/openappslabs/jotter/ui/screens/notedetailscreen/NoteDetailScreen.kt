@@ -411,13 +411,7 @@ fun NoteDetailScreen(
                     }
                 )
 
-                if (!isViewMode) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                if (isViewMode && uiState.isNotePersisted && !isArchivedOrTrashed) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
