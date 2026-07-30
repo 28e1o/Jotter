@@ -19,12 +19,10 @@ package com.openappslabs.jotter.ui.screens.notedetailscreen
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,18 +33,14 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
@@ -71,13 +65,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -95,12 +87,10 @@ import com.openappslabs.jotter.ui.components.NoteActionSheet
 import com.openappslabs.jotter.ui.components.RestoreNoteDialog
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.NoteUtils
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,7 +115,6 @@ fun NoteDetailScreen(
     val scope = rememberCoroutineScope()
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
     val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -371,81 +360,7 @@ fun NoteDetailScreen(
                     .navigationBarsPadding()
                     .imePadding()
             ) {
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(
-                                if (uiState.category.isBlank()) {
-                                    MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
-                                } else {
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                                }
-                            )
-                            .clickable {
-                                if (!isViewMode && !isArchivedOrTrashed) {
-                                    if (isImeVisible) {
-                                        focusManager.clearFocus()
-                                        keyboardController?.hide()
-                                        scope.launch {
-                                            delay(200.milliseconds)
-                                            showCategorySheet = true
-                                        }
-                                    } else {
-                                        haptics.click()
-                                        showCategorySheet = true
-                                    }
-                                }
-                            }
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = if (uiState.category.isBlank()) "UNCATEGORIZED" else uiState.category.uppercase(),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = if (uiState.category.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (uiState.isArchived) {
-                            Icon(
-                                imageVector = Icons.Default.Archive,
-                                contentDescription = "Archived",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-                        if (uiState.isTrashed) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = "Trashed",
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-
-                        if (uiState.isNotePersisted) {
-                            Text(
-                                text = "Created at $dateString",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                Spacer(modifier = Modifier.height(8.dp))
                 BasicTextField(
                     value = uiState.title,
                     onValueChange = { viewModel.updateTitle(it) },
@@ -470,9 +385,7 @@ fun NoteDetailScreen(
                         }
                     }
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 BasicTextField(
                     value = uiState.content,
                     onValueChange = { viewModel.updateContent(it) },
@@ -568,6 +481,7 @@ fun NoteDetailScreen(
             modifiedDate = modifiedDateString,
             wordCount = NoteUtils.countWords(uiState.content),
             charCount = NoteUtils.countCharacters(uiState.content),
+            category = uiState.category,
             isPinned = uiState.isPinned,
             isLocked = uiState.isLocked,
             onDeleteClick = {
@@ -627,6 +541,10 @@ fun NoteDetailScreen(
                         }
                     }
                 }
+            },
+            onCategoryClick = {
+                haptics.click()
+                showCategorySheet = true
             },
             onDismissRequest = { showNoteActionSheet = false }
         )
