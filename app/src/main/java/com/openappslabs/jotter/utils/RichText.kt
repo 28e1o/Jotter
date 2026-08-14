@@ -19,10 +19,11 @@ package com.openappslabs.jotter.utils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.GenericFontFamily
+import com.openappslabs.jotter.R
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -31,10 +32,10 @@ enum class RichFont(val id: String, val label: String) {
     Serif("serif", "Serif"),
     Mono("mono", "Monospace"),
     Cursive("cursive", "Kursif"),
-    Condensed("sans-serif-condensed", "Padat"),
-    Light("sans-serif-light", "Tipis"),
-    Medium("sans-serif-medium", "Sedang"),
-    Black("sans-serif-black", "Hitam");
+    Caveat("caveat", "Tulisan"),
+    Playfair("playfair", "Elegan"),
+    Pacifico("pacifico", "Pulpen"),
+    Lobster("lobster", "Klasik");
 
     val fontFamily: FontFamily
         get() = when (this) {
@@ -42,10 +43,10 @@ enum class RichFont(val id: String, val label: String) {
             Serif -> FontFamily.Serif
             Mono -> FontFamily.Monospace
             Cursive -> FontFamily.Cursive
-            Condensed -> GenericFontFamily("sans-serif-condensed", "sans-serif-condensed")
-            Light -> GenericFontFamily("sans-serif-light", "sans-serif-light")
-            Medium -> GenericFontFamily("sans-serif-medium", "sans-serif-medium")
-            Black -> GenericFontFamily("sans-serif-black", "sans-serif-black")
+            Caveat -> FontFamily(Font(R.font.caveat))
+            Playfair -> FontFamily(Font(R.font.playfair_display))
+            Pacifico -> FontFamily(Font(R.font.pacifico))
+            Lobster -> FontFamily(Font(R.font.lobster))
         }
 
     companion object {
