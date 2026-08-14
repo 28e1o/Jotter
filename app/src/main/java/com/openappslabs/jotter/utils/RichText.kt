@@ -29,7 +29,11 @@ enum class RichFont(val id: String, val label: String) {
     Default("", "Teks Biasa"),
     Serif("serif", "Serif"),
     Mono("mono", "Monospace"),
-    Cursive("cursive", "Kursif");
+    Cursive("cursive", "Kursif"),
+    Condensed("sans-serif-condensed", "Padat"),
+    Light("sans-serif-light", "Tipis"),
+    Medium("sans-serif-medium", "Sedang"),
+    Black("sans-serif-black", "Hitam");
 
     val fontFamily: FontFamily
         get() = when (this) {
@@ -37,6 +41,10 @@ enum class RichFont(val id: String, val label: String) {
             Serif -> FontFamily.Serif
             Mono -> FontFamily.Monospace
             Cursive -> FontFamily.Cursive
+            Condensed -> FontFamily.GenericFontFamily("sans-serif-condensed")
+            Light -> FontFamily.GenericFontFamily("sans-serif-light")
+            Medium -> FontFamily.GenericFontFamily("sans-serif-medium")
+            Black -> FontFamily.GenericFontFamily("sans-serif-black")
         }
 
     companion object {

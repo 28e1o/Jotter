@@ -25,10 +25,12 @@ import com.openappslabs.jotter.data.repository.UserPreferences
 import com.openappslabs.jotter.data.repository.UserPreferencesRepository
 import com.openappslabs.jotter.utils.NoteUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
@@ -78,12 +80,14 @@ class StatsViewModel @Inject constructor(
         userPreferencesRepository.userPreferencesFlow,
         _period
     ) { notes, prefs, period ->
-        computeStats(notes, prefs, period)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = StatsUiState()
-    )
+        runCatching { computeStats(notes, prefs, period) }
+            .getOrElse { StatsUiState(period = period) }
+    }.flowOn(Dispatchers.Default)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = StatsUiState()
+        )
 
     fun setPeriod(period: Period) {
         _period.value = period

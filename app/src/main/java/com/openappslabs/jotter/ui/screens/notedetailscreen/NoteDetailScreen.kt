@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.rounded.Fullscreen
@@ -513,6 +514,7 @@ fun NoteDetailScreen(
                         onToggleBold = viewModel::toggleBold,
                         onToggleItalic = viewModel::toggleItalic,
                         onToggleList = viewModel::toggleBulletList,
+                        onToggleNumberedList = viewModel::toggleNumberedList,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
                     BasicTextField(
@@ -721,6 +723,7 @@ private fun FormattingToolbar(
     onToggleBold: () -> Unit,
     onToggleItalic: () -> Unit,
     onToggleList: () -> Unit,
+    onToggleNumberedList: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showFontMenu by remember { mutableStateOf(false) }
@@ -797,10 +800,20 @@ private fun FormattingToolbar(
         FormatToolbarButton(
             active = false,
             icon = Icons.Default.FormatListBulleted,
-            contentDescription = "Daftar",
+            contentDescription = "Daftar Bulat",
             onClick = {
                 haptics.tick()
                 onToggleList()
+            }
+        )
+
+        FormatToolbarButton(
+            active = false,
+            icon = Icons.Default.FormatListNumbered,
+            contentDescription = "Daftar Angka",
+            onClick = {
+                haptics.tick()
+                onToggleNumberedList()
             }
         )
     }

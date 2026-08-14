@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
@@ -62,6 +63,7 @@ fun RichContentView(
             val lineEnd = (lineStart + line.length).coerceAtMost(annotated.length)
             val lineAnnotated = annotated.subSequence(lineStart, lineEnd)
             val trimmed = line.trimStart()
+            val numberedMatch = Regex("^\\d+\\. ").find(trimmed)
 
             when {
                 trimmed.startsWith("- [ ] ") ||
@@ -107,6 +109,19 @@ fun RichContentView(
                         Text(
                             text = "• ",
                             style = baseStyle,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(text = body, style = baseStyle)
+                    }
+                }
+
+                numberedMatch != null -> {
+                    val contentStart = line.indexOf(trimmed) + numberedMatch.value.length
+                    val body = lineAnnotated.subSequence(contentStart, line.length)
+                    Row(modifier = Modifier.padding(vertical = 2.dp)) {
+                        Text(
+                            text = numberedMatch.value,
+                            style = baseStyle.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(text = body, style = baseStyle)

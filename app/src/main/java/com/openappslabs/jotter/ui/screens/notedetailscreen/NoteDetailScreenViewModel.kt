@@ -137,8 +137,10 @@ class NoteDetailViewModel @Inject constructor(
         val id = uiState.value.id ?: return
         val total = currentSessionTotal()
         viewModelScope.launch {
-            notesRepository.updateTotalTime(id, total)
-            userPreferencesRepository.recordActiveDay()
+            runCatching {
+                notesRepository.updateTotalTime(id, total)
+                userPreferencesRepository.recordActiveDay()
+            }
         }
     }
 
@@ -259,7 +261,7 @@ class NoteDetailViewModel @Inject constructor(
                     createdTime = currentState.createdTime,
                     updatedTime = System.currentTimeMillis()
                 )
-                notesRepository.updateNote(updatedNote)
+                runCatching { notesRepository.updateNote(updatedNote) }
             }
         }
     }
@@ -421,26 +423,75 @@ class NoteDetailViewModel @Inject constructor(
         val editor = _contentEditor.value
         val text = editor.text
         val selection = editor.selection
-        if (text.isEmpty()) return
 
         var newText = text
         var newSpans = decodeSpans(uiState.value.contentAnnotations)
 
-        val startLine = lineIndexForOffset(text, selection.start)
-        val endLine = lineIndexForOffset(text, selection.end)
-        for (line in endLine downTo startLine) {
-            val offsets = lineStartOffsets(newText)
-            if (line >= offsets.size) continue
-            val lineStart = offsets[line]
-            val lineEnd = if (line + 1 < offsets.size) offsets[line + 1] - 1 else newText.length
-            if (lineEnd <= lineStart) continue
-            val lineText = newText.substring(lineStart, lineEnd)
-            if (lineText.startsWith("- ")) {
-                newText = newText.removeRange(lineStart, lineStart + 2)
-                newSpans = editSpans(newSpans, lineStart, lineStart + 2, 0)
-            } else {
-                newText = newText.substring(0, lineStart) + "- " + newText.substring(lineStart)
-                newSpans = editSpans(newSpans, lineStart, lineStart, 2)
+        if (text.isEmpty()) {
+            newText = "- "
+        } else {
+            val startLine = lineIndexForOffset(text, selection.start)
+            val endLine = lineIndexForOffset(text, selection.end)
+            for (line in endLine downTo startLine) {
+                val offsets = lineStartOffsets(newText)
+                if (line >= offsets.size) continue
+                val lineStart = offsets[line]
+                val lineEnd = if (line + 1 < offsets.size) offsets[line + 1] - 1 else newText.length
+                val lineText = newText.substring(lineStart, lineEnd)
+                if (lineText.startsWith("- ")) {
+                    newText = newText.removeRange(lineStart, lineStart + 2)
+                    newSpans = editSpans(newSpans, lineStart, lineStart + 2, 0)
+                } else {
+                    newText = newText.substring(0, lineStart) + "- " + newText.substring(lineStart)
+                    newSpans = editSpans(newSpans, lineStart, lineStart, 2)
+                }
+            }
+        }
+
+        _contentEditor.value = TextFieldValue(
+            annotatedString = buildAnnotated(newText, newSpans),
+            selection = TextRange(selection.start.coerceAtMost(newText.length)),
+            composition = editor.composition
+        )
+        pushSnapshot()
+        _uiState.update {
+            it.copy(
+                content = newText,
+                contentAnnotations = encodeSpans(newSpans)
+            )
+        }
+        checkForChanges()
+    }
+
+    fun toggleNumberedList() {
+        val editor = _contentEditor.value
+        val text = editor.text
+        val selection = editor.selection
+        val numberedPrefix = Regex("^\\d+\\. ")
+
+        var newText = text
+        var newSpans = decodeSpans(uiState.value.contentAnnotations)
+
+        if (text.isEmpty()) {
+            newText = "1. "
+        } else {
+            val startLine = lineIndexForOffset(text, selection.start)
+            val endLine = lineIndexForOffset(text, selection.end)
+            for (line in endLine downTo startLine) {
+                val offsets = lineStartOffsets(newText)
+                if (line >= offsets.size) continue
+                val lineStart = offsets[line]
+                val lineEnd = if (line + 1 < offsets.size) offsets[line + 1] - 1 else newText.length
+                val lineText = newText.substring(lineStart, lineEnd)
+                val match = numberedPrefix.find(lineText)
+                if (match != null) {
+                    val markerLength = match.value.length
+                    newText = newText.removeRange(lineStart, lineStart + markerLength)
+                    newSpans = editSpans(newSpans, lineStart, lineStart + markerLength, 0)
+                } else {
+                    newText = newText.substring(0, lineStart) + "1. " + newText.substring(lineStart)
+                    newSpans = editSpans(newSpans, lineStart, lineStart, 3)
+                }
             }
         }
 
@@ -480,7 +531,7 @@ class NoteDetailViewModel @Inject constructor(
             val currentState = _uiState.value
 
             if (currentState.category.isNotBlank()) {
-                categoryRepository.insertCategory(currentState.category)
+                runCatching { categoryRepository.insertCategory(currentState.category) }
             }
 
             val noteToSave = Note(
@@ -497,11 +548,11 @@ class NoteDetailViewModel @Inject constructor(
             )
 
             if (currentState.isNotePersisted) {
-                notesRepository.updateNote(noteToSave)
+                runCatching { notesRepository.updateNote(noteToSave) }
                 loadNote(currentState.id!!)
             } else {
-                val newId = notesRepository.addNote(noteToSave).toInt()
-                loadNote(newId)
+                val newId = runCatching { notesRepository.addNote(noteToSave) }.getOrDefault(-1L)
+                if (newId > 0) loadNote(newId.toInt())
             }
             clearUndoHistory()
         }
