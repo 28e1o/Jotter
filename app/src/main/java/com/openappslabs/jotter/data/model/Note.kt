@@ -17,6 +17,7 @@
 package com.openappslabs.jotter.data.model
 
 import androidx.compose.runtime.Immutable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -37,6 +38,8 @@ data class Note(
     val id: Int = 0,
     val title: String = "",
     val content: String = "",
+    @ColumnInfo(defaultValue = "''")
+    val contentAnnotations: String = "",
     val category: String = "",
     val createdTime: Long = System.currentTimeMillis(),
     val updatedTime: Long = System.currentTimeMillis(),

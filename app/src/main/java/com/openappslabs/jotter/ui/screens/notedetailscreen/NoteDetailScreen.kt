@@ -34,8 +34,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -44,11 +46,16 @@ import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.FormatBold
+import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.FullscreenExit
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -90,8 +97,11 @@ import com.openappslabs.jotter.ui.components.EditViewButton
 import com.openappslabs.jotter.ui.components.MarkdownContent
 import com.openappslabs.jotter.ui.components.NoteActionSheet
 import com.openappslabs.jotter.ui.components.RestoreNoteDialog
+import com.openappslabs.jotter.ui.components.RichContentView
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
+import com.openappslabs.jotter.utils.ActiveFormat
 import com.openappslabs.jotter.utils.NoteUtils
+import com.openappslabs.jotter.utils.RichFont
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -110,6 +120,8 @@ fun NoteDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val userPrefs by viewModel.userPreferences.collectAsStateWithLifecycle()
+    val contentEditor by viewModel.contentEditor.collectAsStateWithLifecycle()
+    val activeFormat by viewModel.activeFormat.collectAsStateWithLifecycle()
     var showDiscardDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
@@ -448,18 +460,39 @@ fun NoteDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (isViewMode || isArchivedOrTrashed) {
-                    MarkdownContent(
-                        content = uiState.content,
-                        baseStyle = contentStyle,
-                        onToggleChecklist = { line, checked ->
-                            if (!isArchivedOrTrashed) {
-                                viewModel.toggleChecklist(line, checked)
+                    if (uiState.contentAnnotations.isBlank()) {
+                        MarkdownContent(
+                            content = uiState.content,
+                            baseStyle = contentStyle,
+                            onToggleChecklist = { line, checked ->
+                                if (!isArchivedOrTrashed) {
+                                    viewModel.toggleChecklist(line, checked)
+                                }
                             }
-                        }
-                    )
+                        )
+                    } else {
+                        RichContentView(
+                            content = uiState.content,
+                            contentAnnotations = uiState.contentAnnotations,
+                            baseStyle = contentStyle,
+                            onToggleChecklist = { line, checked ->
+                                if (!isArchivedOrTrashed) {
+                                    viewModel.toggleChecklist(line, checked)
+                                }
+                            }
+                        )
+                    }
                 } else {
+                    FormattingToolbar(
+                        activeFormat = activeFormat,
+                        onFontSelected = viewModel::setEditorFont,
+                        onToggleBold = viewModel::toggleBold,
+                        onToggleItalic = viewModel::toggleItalic,
+                        onToggleList = viewModel::toggleBulletList,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
                     BasicTextField(
-                        value = uiState.content,
+                        value = contentEditor,
                         onValueChange = { viewModel.updateContent(it) },
                         readOnly = false,
                         textStyle = contentStyle,
@@ -654,5 +687,123 @@ fun NoteDetailScreen(
                 onBackClick()
             }
         )
+    }
+}
+
+@Composable
+private fun FormattingToolbar(
+    activeFormat: ActiveFormat,
+    onFontSelected: (RichFont) -> Unit,
+    onToggleBold: () -> Unit,
+    onToggleItalic: () -> Unit,
+    onToggleList: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var showFontMenu by remember { mutableStateOf(false) }
+    val haptics = rememberJotterHaptics()
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box {
+            Surface(
+                onClick = {
+                    haptics.tick()
+                    showFontMenu = true
+                },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Aa",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = activeFormat.font.fontFamily
+                    )
+                }
+            }
+            DropdownMenu(
+                expanded = showFontMenu,
+                onDismissRequest = { showFontMenu = false }
+            ) {
+                RichFont.entries.forEach { font ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = font.label,
+                                fontFamily = font.fontFamily
+                            )
+                        },
+                        onClick = {
+                            showFontMenu = false
+                            haptics.tick()
+                            onFontSelected(font)
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        FormatToolbarButton(
+            active = activeFormat.bold,
+            icon = Icons.Default.FormatBold,
+            contentDescription = "Tebal",
+            onClick = {
+                haptics.tick()
+                onToggleBold()
+            }
+        )
+
+        FormatToolbarButton(
+            active = activeFormat.italic,
+            icon = Icons.Default.FormatItalic,
+            contentDescription = "Miring",
+            onClick = {
+                haptics.tick()
+                onToggleItalic()
+            }
+        )
+
+        FormatToolbarButton(
+            active = false,
+            icon = Icons.Default.FormatListBulleted,
+            contentDescription = "Daftar",
+            onClick = {
+                haptics.tick()
+                onToggleList()
+            }
+        )
+    }
+}
+
+@Composable
+private fun FormatToolbarButton(
+    active: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = if (active) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.size(40.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = if (active) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp)
+            )
+        }
     }
 }

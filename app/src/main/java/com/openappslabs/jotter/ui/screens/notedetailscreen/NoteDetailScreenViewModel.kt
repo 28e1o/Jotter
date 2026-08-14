@@ -17,6 +17,8 @@
 package com.openappslabs.jotter.ui.screens.notedetailscreen
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +29,15 @@ import com.openappslabs.jotter.data.repository.NotesRepository
 import com.openappslabs.jotter.data.repository.UserPreferences
 import com.openappslabs.jotter.data.repository.UserPreferencesRepository
 import com.openappslabs.jotter.navigation.AppRoutes
+import com.openappslabs.jotter.utils.ActiveFormat
+import com.openappslabs.jotter.utils.RichFont
+import com.openappslabs.jotter.utils.applyFormat
+import com.openappslabs.jotter.utils.buildAnnotated
+import com.openappslabs.jotter.utils.decodeSpans
+import com.openappslabs.jotter.utils.editSpans
+import com.openappslabs.jotter.utils.encodeSpans
+import com.openappslabs.jotter.utils.lineIndexForOffset
+import com.openappslabs.jotter.utils.lineStartOffsets
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -66,6 +77,7 @@ class NoteDetailViewModel @Inject constructor(
         val id: Int? = null,
         val title: String = "",
         val content: String = "",
+        val contentAnnotations: String = "",
         val category: String = "",
         val isPinned: Boolean = false,
         val isLocked: Boolean = false,
@@ -82,9 +94,20 @@ class NoteDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    private val _contentEditor = MutableStateFlow(TextFieldValue(""))
+    val contentEditor: StateFlow<TextFieldValue> = _contentEditor.asStateFlow()
+
+    private val _activeFormat = MutableStateFlow(ActiveFormat())
+    val activeFormat: StateFlow<ActiveFormat> = _activeFormat.asStateFlow()
+
     private var originalState: UiState? = null
 
-    private data class Snapshot(val title: String, val content: String, val category: String)
+    private data class Snapshot(
+        val title: String,
+        val content: String,
+        val contentAnnotations: String,
+        val category: String
+    )
 
     private val undoHistory = ArrayDeque<Snapshot>()
 
@@ -110,6 +133,7 @@ class NoteDetailViewModel @Inject constructor(
             )
             _uiState.update { initialState }
             originalState = initialState
+            syncEditorFromState()
         }
         observeCategoryCleanup()
         observeNoteUpdates()
@@ -150,6 +174,7 @@ class NoteDetailViewModel @Inject constructor(
                     id = note.id,
                     title = note.title,
                     content = note.content,
+                    contentAnnotations = note.contentAnnotations,
                     category = note.category,
                     isPinned = note.isPinned,
                     isLocked = note.isLocked,
@@ -164,6 +189,7 @@ class NoteDetailViewModel @Inject constructor(
                 _uiState.update { newState }
                 originalState = newState
                 clearUndoHistory()
+                syncEditorFromState()
             } else {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -178,6 +204,7 @@ class NoteDetailViewModel @Inject constructor(
                     id = currentState.id,
                     title = currentState.title,
                     content = currentState.content,
+                    contentAnnotations = currentState.contentAnnotations,
                     category = currentState.category,
                     isPinned = currentState.isPinned,
                     isLocked = currentState.isLocked,
@@ -196,6 +223,7 @@ class NoteDetailViewModel @Inject constructor(
         val original = originalState ?: return
         val modified = current.title != original.title ||
                        current.content != original.content ||
+                       current.contentAnnotations != original.contentAnnotations ||
                        current.category != original.category
         
         if (current.isModified != modified) {
@@ -203,9 +231,19 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
+    private fun syncEditorFromState() {
+        val state = _uiState.value
+        _contentEditor.value = TextFieldValue(
+            annotatedString = buildAnnotated(state.content, decodeSpans(state.contentAnnotations)),
+            selection = TextRange(state.content.length),
+            composition = null
+        )
+        _activeFormat.value = ActiveFormat()
+    }
+
     private fun pushSnapshot() {
         val current = _uiState.value
-        val snapshot = Snapshot(current.title, current.content, current.category)
+        val snapshot = Snapshot(current.title, current.content, current.contentAnnotations, current.category)
         if (undoHistory.lastOrNull() == snapshot) return
         undoHistory.addLast(snapshot)
         while (undoHistory.size > MAX_UNDO_STEPS) {
@@ -225,10 +263,12 @@ class NoteDetailViewModel @Inject constructor(
             it.copy(
                 title = snapshot.title,
                 content = snapshot.content,
+                contentAnnotations = snapshot.contentAnnotations,
                 category = snapshot.category,
                 canUndo = undoHistory.isNotEmpty()
             )
         }
+        syncEditorFromState()
         checkForChanges()
     }
 
@@ -254,9 +294,122 @@ class NoteDetailViewModel @Inject constructor(
         checkForChanges()
     }
 
-    fun updateContent(newContent: String) {
+    fun updateContent(newValue: TextFieldValue) {
+        val oldEditor = _contentEditor.value
+        val oldText = oldEditor.text
+        val newText = newValue.annotatedString.text
+        val textChanged = newText != oldText
+
+        var newSpans = decodeSpans(uiState.value.contentAnnotations)
+        if (textChanged) {
+            var commonPrefix = 0
+            while (commonPrefix < oldText.length && commonPrefix < newText.length &&
+                oldText[commonPrefix] == newText[commonPrefix]
+            ) {
+                commonPrefix++
+            }
+            var commonSuffix = 0
+            while (commonSuffix < oldText.length - commonPrefix &&
+                commonSuffix < newText.length - commonPrefix &&
+                oldText[oldText.length - 1 - commonSuffix] == newText[newText.length - 1 - commonSuffix]
+            ) {
+                commonSuffix++
+            }
+            val oldModifiedEnd = oldText.length - commonSuffix
+            val newModifiedEnd = newText.length - commonSuffix
+            newSpans = editSpans(newSpans, commonPrefix, oldModifiedEnd, newModifiedEnd - commonPrefix)
+            if (newModifiedEnd > commonPrefix) {
+                newSpans = applyFormat(newSpans, commonPrefix, newModifiedEnd, _activeFormat.value)
+            }
+        }
+
+        _contentEditor.value = newValue.copy(annotatedString = buildAnnotated(newText, newSpans))
+        if (textChanged) {
+            pushSnapshot()
+            _uiState.update {
+                it.copy(
+                    content = newText,
+                    contentAnnotations = encodeSpans(newSpans)
+                )
+            }
+            checkForChanges()
+        }
+    }
+
+    private fun applyActiveFormatToSelection(newFormat: ActiveFormat) {
+        val editor = _contentEditor.value
+        val selection = editor.selection
+        if (selection.end > selection.start) {
+            val newSpans = applyFormat(
+                decodeSpans(uiState.value.contentAnnotations),
+                selection.start,
+                selection.end,
+                newFormat
+            )
+            _contentEditor.value = editor.copy(annotatedString = buildAnnotated(editor.text, newSpans))
+            pushSnapshot()
+            _uiState.update { it.copy(contentAnnotations = encodeSpans(newSpans)) }
+            checkForChanges()
+        }
+    }
+
+    fun toggleBold() {
+        val newFormat = _activeFormat.value.copy(bold = !_activeFormat.value.bold)
+        _activeFormat.value = newFormat
+        applyActiveFormatToSelection(newFormat)
+    }
+
+    fun toggleItalic() {
+        val newFormat = _activeFormat.value.copy(italic = !_activeFormat.value.italic)
+        _activeFormat.value = newFormat
+        applyActiveFormatToSelection(newFormat)
+    }
+
+    fun setEditorFont(font: RichFont) {
+        val newFormat = _activeFormat.value.copy(font = font)
+        _activeFormat.value = newFormat
+        applyActiveFormatToSelection(newFormat)
+    }
+
+    fun toggleBulletList() {
+        val editor = _contentEditor.value
+        val text = editor.text
+        val selection = editor.selection
+        if (text.isEmpty()) return
+
+        var newText = text
+        var newSpans = decodeSpans(uiState.value.contentAnnotations)
+
+        val startLine = lineIndexForOffset(text, selection.start)
+        val endLine = lineIndexForOffset(text, selection.end)
+        for (line in endLine downTo startLine) {
+            val offsets = lineStartOffsets(newText)
+            if (line >= offsets.size) continue
+            val lineStart = offsets[line]
+            val lineEnd = if (line + 1 < offsets.size) offsets[line + 1] - 1 else newText.length
+            if (lineEnd <= lineStart) continue
+            val lineText = newText.substring(lineStart, lineEnd)
+            if (lineText.startsWith("- ")) {
+                newText = newText.removeRange(lineStart, lineStart + 2)
+                newSpans = editSpans(newSpans, lineStart, lineStart + 2, 0)
+            } else {
+                newText = newText.substring(0, lineStart) + "- " + newText.substring(lineStart)
+                newSpans = editSpans(newSpans, lineStart, lineStart, 2)
+            }
+        }
+
+        _contentEditor.value = TextFieldValue(
+            annotatedString = buildAnnotated(newText, newSpans),
+            selection = TextRange(selection.start.coerceAtMost(newText.length)),
+            composition = editor.composition
+        )
         pushSnapshot()
-        _uiState.update { it.copy(content = newContent) }
+        _uiState.update {
+            it.copy(
+                content = newText,
+                contentAnnotations = encodeSpans(newSpans)
+            )
+        }
         checkForChanges()
     }
 
@@ -288,6 +441,7 @@ class NoteDetailViewModel @Inject constructor(
                 id = currentState.id ?: 0,
                 title = currentState.title,
                 content = currentState.content,
+                contentAnnotations = currentState.contentAnnotations,
                 category = currentState.category,
                 isPinned = currentState.isPinned,
                 isLocked = currentState.isLocked,
@@ -344,6 +498,7 @@ class NoteDetailViewModel @Inject constructor(
                 id = 0,
                 title = newTitle,
                 content = current.content,
+                contentAnnotations = current.contentAnnotations,
                 category = current.category,
                 isPinned = false,
                 isLocked = false,
