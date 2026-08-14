@@ -70,8 +70,8 @@ fun NoteInfoCard(
             ) {
                 InfoItem(
                     icon = Icons.Outlined.Category,
-                    label = "Category",
-                    value = category.ifBlank { "Uncategorized" },
+                    label = "Kategori",
+                    value = category.ifBlank { "Tanpa Kategori" },
                     valueColor = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.fillMaxWidth(),
@@ -83,13 +83,13 @@ fun NoteInfoCard(
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     InfoItem(
                         icon = Icons.Outlined.Event,
-                        label = "Created",
+                        label = "Dibuat",
                         value = createdDate,
                         modifier = Modifier.fillMaxWidth()
                     )
                     InfoItem(
                         icon = Icons.Outlined.History,
-                        label = "Modified",
+                        label = "Diubah",
                         value = modifiedDate,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -104,13 +104,13 @@ fun NoteInfoCard(
                 ) {
                     InfoItem(
                         icon = Icons.Outlined.Translate,
-                        label = "Words",
+                        label = "Kata",
                         value = wordCount.toString(),
                         modifier = Modifier.weight(1f)
                     )
                     InfoItem(
                         icon = Icons.Outlined.TextFields,
-                        label = "Characters",
+                        label = "Karakter",
                         value = charCount.toString(),
                         modifier = Modifier.weight(1f)
                     )

@@ -52,7 +52,11 @@ class SettingsScreenViewModel @Inject constructor(
                 showSortButton = prefs.showSortButton,
                 isGridView = prefs.isGridView,
                 is24HourFormat = prefs.is24HourFormat,
-                dateFormat = prefs.dateFormat
+                dateFormat = prefs.dateFormat,
+                fontSizeScale = prefs.fontSizeScale,
+                lineSpacingScale = prefs.lineSpacingScale,
+                accentColor = prefs.accentColor,
+                isHomeFocusMode = prefs.isHomeFocusMode
             )
         }
         .distinctUntilChanged()
@@ -78,6 +82,10 @@ class SettingsScreenViewModel @Inject constructor(
         val isGridView: Boolean = false,
         val is24HourFormat: Boolean = false,
         val dateFormat: String = "dd MMM",
+        val fontSizeScale: Float = 1f,
+        val lineSpacingScale: Float = 1f,
+        val accentColor: String = "",
+        val isHomeFocusMode: Boolean = false
     )
 
     fun updateShowAddCategoryButton(show: Boolean) {
@@ -135,5 +143,21 @@ class SettingsScreenViewModel @Inject constructor(
 
     fun updateDateFormat(format: String) {
         viewModelScope.launch { repository.setDateFormat(format) }
+    }
+
+    fun updateFontSizeScale(scale: Float) {
+        viewModelScope.launch { repository.setFontSizeScale(scale) }
+    }
+
+    fun updateLineSpacingScale(scale: Float) {
+        viewModelScope.launch { repository.setLineSpacingScale(scale) }
+    }
+
+    fun updateAccentColor(color: String) {
+        viewModelScope.launch { repository.setAccentColor(color) }
+    }
+
+    fun updateHomeFocusMode(enabled: Boolean) {
+        viewModelScope.launch { repository.setHomeFocusMode(enabled) }
     }
 }

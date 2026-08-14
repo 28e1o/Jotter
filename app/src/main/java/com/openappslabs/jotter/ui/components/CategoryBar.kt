@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Circle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -41,8 +42,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.openappslabs.jotter.ui.theme.parseAccentColor
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
 @Immutable
@@ -60,6 +63,7 @@ fun CategoryBar(
     showSortButton: Boolean,
     sortDirection: SortDirection,
     sortType: SortType,
+    categoryColors: Map<String, String> = emptyMap(),
     onSortClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -117,6 +121,18 @@ fun CategoryBar(
                 key = { _, category -> category }
             ) { _, category ->
                 val isSelected = category == selectedCategory
+                val categoryColorHex = categoryColors[category]
+                val categoryColor = parseAccentColor(categoryColorHex ?: "")
+
+                val chipColors = if (categoryColor != null && isSelected) {
+                    FilterChipDefaults.filterChipColors(
+                        containerColor = categoryColor.copy(alpha = 0.2f),
+                        labelColor = categoryColor,
+                        iconColor = categoryColor
+                    )
+                } else {
+                    FilterChipDefaults.filterChipColors()
+                }
 
                 FilterChip(
                     modifier = Modifier.animateItem(
@@ -132,8 +148,21 @@ fun CategoryBar(
                             onCategorySelect(category)
                         }
                     },
-                    label = { Text(text = category) },
-                    shape = RoundedCornerShape(8.dp)
+                    label = { Text(text = if (category == "All") "Semua" else category) },
+                    leadingIcon = if (categoryColor != null) {
+                        {
+                            Icon(
+                                imageVector = Icons.Rounded.Circle,
+                                contentDescription = null,
+                                tint = categoryColor,
+                                modifier = Modifier.size(10.dp)
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = chipColors
                 )
             }
 
@@ -149,7 +178,7 @@ fun CategoryBar(
                             haptics.click()
                             onAddCategoryClick()
                         },
-                        label = { Text("Add") },
+                        label = { Text("Tambah") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.Add,

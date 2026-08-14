@@ -27,5 +27,6 @@ import kotlinx.serialization.Serializable
 data class Category(
     @PrimaryKey
     val name: String,
-    val createdTime: Long = System.currentTimeMillis()
+    val createdTime: Long = System.currentTimeMillis(),
+    val color: String? = null
 )

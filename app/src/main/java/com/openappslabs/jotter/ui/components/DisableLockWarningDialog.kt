@@ -78,7 +78,7 @@ fun DisableLockWarningDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Disable Note Lock?",
+                    text = "Nonaktifkan Kunci Catatan?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -88,7 +88,7 @@ fun DisableLockWarningDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "This will remove the lock from all currently locked notes. They will become accessible without authentication.",
+                    text = "Ini akan menghapus kunci dari semua catatan yang terkunci saat ini. Catatan tersebut akan dapat diakses tanpa autentikasi.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -108,7 +108,7 @@ fun DisableLockWarningDialog(
                     ),
                     contentPadding = ZeroPadding
                 ) {
-                    Text("Disable", fontWeight = FontWeight.SemiBold)
+                    Text("Nonaktifkan", fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -125,7 +125,7 @@ fun DisableLockWarningDialog(
                     ),
                     contentPadding = ZeroPadding
                 ) {
-                    Text("Cancel", fontWeight = FontWeight.SemiBold)
+                    Text("Batal", fontWeight = FontWeight.SemiBold)
                 }
             }
         }

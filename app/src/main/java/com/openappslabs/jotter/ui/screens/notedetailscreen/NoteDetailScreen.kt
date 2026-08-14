@@ -23,6 +23,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,11 +40,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.rounded.Fullscreen
+import androidx.compose.material.icons.rounded.FullscreenExit
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -83,6 +87,7 @@ import com.openappslabs.jotter.ui.components.CategorySheet
 import com.openappslabs.jotter.ui.components.DeleteNoteDialog
 import com.openappslabs.jotter.ui.components.DiscardChangesDialog
 import com.openappslabs.jotter.ui.components.EditViewButton
+import com.openappslabs.jotter.ui.components.MarkdownContent
 import com.openappslabs.jotter.ui.components.NoteActionSheet
 import com.openappslabs.jotter.ui.components.RestoreNoteDialog
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
@@ -111,6 +116,7 @@ fun NoteDetailScreen(
     var showRestoreNoteDialog by remember { mutableStateOf(false) }
     var pendingDiscard by remember { mutableStateOf(false) }
     var showNoteActionSheet by remember { mutableStateOf(false) }
+    var isFocusMode by remember { mutableStateOf(false) }
     val noteActionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
@@ -126,7 +132,7 @@ fun NoteDetailScreen(
                 val success = NoteUtils.saveTextToUri(context, it, textToSave)
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        if (success) "Note exported successfully" else "Failed to export note"
+                        if (success) "Catatan berhasil diekspor" else "Gagal mengekspor catatan"
                     )
                 }
             }
@@ -164,18 +170,18 @@ fun NoteDetailScreen(
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    val titleStyle = remember(onSurfaceColor) {
+    val titleStyle = remember(onSurfaceColor, userPrefs.fontSizeScale) {
         TextStyle(
-            fontSize = 30.sp,
+            fontSize = (30.sp * userPrefs.fontSizeScale).coerceAtLeast(14.sp),
             fontWeight = FontWeight.Bold,
             color = onSurfaceColor
         )
     }
 
-    val contentStyle = remember(onSurfaceColor) {
+    val contentStyle = remember(onSurfaceColor, userPrefs.fontSizeScale, userPrefs.lineSpacingScale) {
         TextStyle(
-            fontSize = 18.sp,
-            lineHeight = 28.sp,
+            fontSize = (18.sp * userPrefs.fontSizeScale).coerceAtLeast(12.sp),
+            lineHeight = (28.sp * userPrefs.lineSpacingScale).coerceAtLeast(18.sp),
             fontWeight = FontWeight.Normal,
             color = onSurfaceColor.copy(alpha = 0.85f)
         )
@@ -189,6 +195,12 @@ fun NoteDetailScreen(
         if (!isImeVisible && pendingDiscard) {
             pendingDiscard = false
             showDiscardDialog = true
+        }
+    }
+
+    LaunchedEffect(isViewMode) {
+        if (isViewMode) {
+            isFocusMode = false
         }
     }
 
@@ -216,8 +228,9 @@ fun NoteDetailScreen(
         containerColor = MaterialTheme.colorScheme.surface,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
+            if (!isFocusMode || isViewMode) {
+                CenterAlignedTopAppBar(
+                    title = {
                     if (uiState.isNotePersisted && !isArchivedOrTrashed) {
                         EditViewButton(
                             isEditing = !isViewMode,
@@ -251,7 +264,7 @@ fun NoteDetailScreen(
                             val showCloseIcon = !isViewMode && uiState.isModified
                             Icon(
                                 imageVector = if (showCloseIcon) Icons.Default.Close else Icons.Default.ChevronLeft,
-                                contentDescription = if (showCloseIcon) "Close" else "Back",
+                                contentDescription = if (showCloseIcon) "Tutup" else "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -275,7 +288,7 @@ fun NoteDetailScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Restore,
-                                    contentDescription = "Restore/Unarchive",
+                                    contentDescription = "Pulihkan/Batalkan Arsip",
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
                                 )
@@ -296,35 +309,79 @@ fun NoteDetailScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
-                                    contentDescription = "Actions",
+                                    contentDescription = "Tindakan",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
                     } else {
-                        Surface(
-                            onClick = {
-                                haptics.success()
-                                viewModel.saveNote()
-                                isViewMode = true
-                                keyboardController?.hide()
-                            },
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceContainer,
-                            enabled = isSaveEnabled,
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .size(48.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Filled.Done,
-                                    contentDescription = "Save",
-                                    tint = if (isSaveEnabled) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                                    modifier = Modifier.size(24.dp)
-                                )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (uiState.canUndo) {
+                                Surface(
+                                    onClick = {
+                                        haptics.tick()
+                                        viewModel.undo()
+                                    },
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    modifier = Modifier
+                                        .padding(end = 4.dp)
+                                        .size(48.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Rounded.Undo,
+                                            contentDescription = "Urungkan",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            Surface(
+                                onClick = {
+                                    haptics.tick()
+                                    isFocusMode = true
+                                },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .size(48.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Fullscreen,
+                                        contentDescription = "Mode fokus mengetik",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            Surface(
+                                onClick = {
+                                    haptics.success()
+                                    viewModel.saveNote()
+                                    isViewMode = true
+                                    keyboardController?.hide()
+                                },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                enabled = isSaveEnabled,
+                                modifier = Modifier
+                                    .padding(end = 12.dp)
+                                    .size(48.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Done,
+                                        contentDescription = "Simpan",
+                                        tint = if (isSaveEnabled) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -335,6 +392,7 @@ fun NoteDetailScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
+            }
         },
         modifier = modifier
     ) { innerPadding ->
@@ -377,7 +435,7 @@ fun NoteDetailScreen(
                         Box {
                             if (uiState.title.isEmpty() && !isViewMode && !isArchivedOrTrashed) {
                                 Text(
-                                    text = "Untitled",
+                                    text = "Tanpa Judul",
                                     style = titleStyle.copy(color = onSurfaceColor.copy(alpha = 0.3f))
                                 )
                             }
@@ -386,32 +444,68 @@ fun NoteDetailScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                BasicTextField(
-                    value = uiState.content,
-                    onValueChange = { viewModel.updateContent(it) },
-                    readOnly = isViewMode || isArchivedOrTrashed,
-                    textStyle = contentStyle,
-                    cursorBrush = cursorBrush,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(contentFocusRequester),
-                    decorationBox = { innerTextField ->
-                        Box {
-                            if (uiState.content.isEmpty() && !isViewMode && !isArchivedOrTrashed) {
-                                Text(
-                                    text = "Start typing...",
-                                    style = contentStyle.copy(color = onSurfaceColor.copy(alpha = 0.3f))
-                                )
+                if (isViewMode || isArchivedOrTrashed) {
+                    MarkdownContent(
+                        content = uiState.content,
+                        baseStyle = contentStyle,
+                        onToggleChecklist = { line, checked ->
+                            if (!isArchivedOrTrashed) {
+                                viewModel.toggleChecklist(line, checked)
                             }
-                            innerTextField()
                         }
-                    }
-                )
+                    )
+                } else {
+                    BasicTextField(
+                        value = uiState.content,
+                        onValueChange = { viewModel.updateContent(it) },
+                        readOnly = false,
+                        textStyle = contentStyle,
+                        cursorBrush = cursorBrush,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(contentFocusRequester),
+                        decorationBox = { innerTextField ->
+                            Box {
+                                if (uiState.content.isEmpty()) {
+                                    Text(
+                                        text = "Mulai mengetik...",
+                                        style = contentStyle.copy(color = onSurfaceColor.copy(alpha = 0.3f))
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            if (isFocusMode && !isViewMode) {
+                Surface(
+                    onClick = {
+                        haptics.click()
+                        isFocusMode = false
+                    },
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .size(48.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Rounded.FullscreenExit,
+                            contentDescription = "Keluar mode fokus",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -501,7 +595,7 @@ fun NoteDetailScreen(
                 viewModel.duplicateNote { newId ->
                     showNoteActionSheet = false
                     scope.launch {
-                        snackbarHostState.showSnackbar("Note duplicated")
+                        snackbarHostState.showSnackbar("Catatan diduplikasi")
                     }
                 }
             },
@@ -529,7 +623,7 @@ fun NoteDetailScreen(
                     scope.launch {
                         if (snackbarHostState.currentSnackbarData == null) {
                             snackbarHostState.showSnackbar(
-                                message = "Enable Note Lock in Settings to use this feature",
+                                message = "Aktifkan Kunci Catatan di Pengaturan untuk menggunakan fitur ini",
                                 duration = SnackbarDuration.Short
                             )
                         }

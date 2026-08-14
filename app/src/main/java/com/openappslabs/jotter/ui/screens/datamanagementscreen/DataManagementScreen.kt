@@ -128,7 +128,7 @@ fun DataManagementScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Data Management",
+                        text = "Manajemen Data",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -148,7 +148,7 @@ fun DataManagementScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -177,8 +177,8 @@ fun DataManagementScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.Upload,
-                        title = "Export notes",
-                        subtitle = "Export notes to file",
+                        title = "Ekspor catatan",
+                        subtitle = "Ekspor catatan ke file",
                         onClick = {
                             haptics.click()
                             if (uiState.hasDataToExport) {
@@ -192,8 +192,8 @@ fun DataManagementScreen(
                     TinyGap()
                     SettingsItemArrow(
                         icon = Icons.Default.Download,
-                        title = "Import notes",
-                        subtitle = "Import notes from file",
+                        title = "Impor catatan",
+                        subtitle = "Impor catatan dari file",
                         onClick = {
                             haptics.click()
                             importLauncher.launch("application/json")
@@ -206,8 +206,8 @@ fun DataManagementScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.DeleteForever,
-                        title = "Clear all local data",
-                        subtitle = "Delete all data permanently",
+                        title = "Hapus semua data lokal",
+                        subtitle = "Hapus semua data secara permanen",
                         onClick = { showClearAllDialog = true },
                         isDestructive = true
                     )
@@ -218,7 +218,7 @@ fun DataManagementScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = "Processing...",
+                        text = "Memproses...",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),

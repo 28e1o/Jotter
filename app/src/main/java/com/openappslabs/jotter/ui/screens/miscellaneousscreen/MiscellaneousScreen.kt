@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -90,7 +91,7 @@ fun MiscellaneousScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Miscellaneous",
+                        text = "Lain-lain",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -110,7 +111,7 @@ fun MiscellaneousScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -135,8 +136,8 @@ fun MiscellaneousScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.AutoMirrored.Filled.Label,
-                        title = "Categories",
-                        subtitle = "Add, edit or remove categories",
+                        title = "Kategori",
+                        subtitle = "Tambah, edit, atau hapus kategori",
                         onClick = onManageTagsClick
                     )
                 }
@@ -145,16 +146,16 @@ fun MiscellaneousScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.Archive,
-                        title = "Archived notes",
-                        subtitle = "Notes you archive appear here",
+                        title = "Catatan diarsipkan",
+                        subtitle = "Catatan yang Anda arsipkan muncul di sini",
                         onClick = onArchiveClick
                     )
                     TinyGap()
 
                     SettingsItemArrow(
                         icon = Icons.Default.Delete,
-                        title = "Trash",
-                        subtitle = "Notes you delete appear here",
+                        title = "Sampah",
+                        subtitle = "Catatan yang Anda hapus muncul di sini",
                         onClick = onTrashClick
                     )
                 }
@@ -163,17 +164,26 @@ fun MiscellaneousScreen(
                 SettingsGroup {
                     SettingsItemSwitch(
                         icon = Icons.Default.Add,
-                        title = "Show add category button",
-                        subtitle = "Show or hide '+' on home screen",
+                        title = "Tampilkan tombol tambah kategori",
+                        subtitle = "Tampilkan atau sembunyikan '+' di layar utama",
                         checked = uiState.showAddCategoryButton,
                         onCheckedChange = viewModel::updateShowAddCategoryButton
                     )
                     TinyGap()
 
                     SettingsItemSwitch(
+                        icon = Icons.Default.Fullscreen,
+                        title = "Mode fokus layar utama",
+                        subtitle = "Sembunyikan bilah pencarian dan kategori",
+                        checked = uiState.isHomeFocusMode,
+                        onCheckedChange = viewModel::updateHomeFocusMode
+                    )
+                    TinyGap()
+
+                    SettingsItemSwitch(
                         icon = Icons.Default.Vibration,
-                        title = "Haptic feedback",
-                        subtitle = "Vibrate on touch interactions",
+                        title = "Umpan balik haptic",
+                        subtitle = "Bergetar pada interaksi sentuh",
                         checked = uiState.isHapticEnabled,
                         onCheckedChange = viewModel::updateHapticEnabled
                     )
@@ -181,8 +191,8 @@ fun MiscellaneousScreen(
 
                     SettingsItemSwitch(
                         icon = Icons.AutoMirrored.Filled.Sort,
-                        title = "Show sort button",
-                        subtitle = "Show or hide sort button",
+                        title = "Tampilkan tombol urutkan",
+                        subtitle = "Tampilkan atau sembunyikan tombol urutkan",
                         checked = uiState.showSortButton,
                         onCheckedChange = viewModel::updateShowSortButton
                     )

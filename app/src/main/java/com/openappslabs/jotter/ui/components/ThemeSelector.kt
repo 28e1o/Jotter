@@ -165,8 +165,14 @@ fun ThemeSelector(
                             }
                         }
 
+                        val themeLabel = when (option) {
+                            AppTheme.SYSTEM -> "Sistem"
+                            AppTheme.LIGHT -> "Terang"
+                            AppTheme.DARK -> "Gelap"
+                        }
+
                         Text(
-                            text = option.name.lowercase().replaceFirstChar { it.uppercase() },
+                            text = themeLabel,
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             color = contentColor

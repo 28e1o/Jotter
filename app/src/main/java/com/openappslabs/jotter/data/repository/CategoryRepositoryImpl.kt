@@ -49,6 +49,10 @@ class CategoryRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun setCategoryColor(name: String, color: String?) {
+        categoryDao.updateCategoryColor(name, color)
+    }
+
     override suspend fun deleteCategoryByName(name: String) {
         categoryDao.deleteCategoryByName(name)
     }

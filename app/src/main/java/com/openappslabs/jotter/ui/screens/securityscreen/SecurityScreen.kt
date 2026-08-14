@@ -98,7 +98,7 @@ fun SecurityScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Security",
+                        text = "Keamanan",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -118,7 +118,7 @@ fun SecurityScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -153,8 +153,8 @@ fun SecurityScreen(
                     ) {
                         Column {
                             SettingsItemNoteLock(
-                                title = "Note lock",
-                                subtitle = "Require authentication to open",
+                                title = "Kunci catatan",
+                                subtitle = "Wajib autentikasi untuk membuka",
                                 checked = uiState.isBiometricEnabled,
                                 authSupport = authSupport,
                                 onCheckedChange = { isEnabled ->
@@ -165,8 +165,8 @@ fun SecurityScreen(
                                         if (activity != null) {
                                             BiometricAuthUtil.authenticate(
                                                 activity = activity,
-                                                title = "Confirm Identity",
-                                                subtitle = "Authenticate To Disable Note Lock",
+                                                title = "Konfirmasi Identitas",
+                                                subtitle = "Autentikasi Untuk Menonaktifkan Kunci Catatan",
                                                 onSuccess = {
                                                     showDisableLockWarningDialog = true
                                                 },
@@ -210,8 +210,8 @@ fun SecurityScreen(
 
                     SettingsItemSwitch(
                         icon = Icons.Default.Security,
-                        title = "Secure screen",
-                        subtitle = "Disable screenshots",
+                        title = "Layar aman",
+                        subtitle = "Nonaktifkan tangkapan layar",
                         checked = uiState.isSecureMode,
                         onCheckedChange = viewModel::updateSecureMode
                     )

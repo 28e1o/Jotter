@@ -80,7 +80,7 @@ fun DiscardChangesDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Discard changes?",
+                    text = "Batalkan perubahan?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -90,7 +90,7 @@ fun DiscardChangesDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "You have unsaved changes. If you discard them now, your changes will be lost.",
+                    text = "Anda memiliki perubahan yang belum disimpan. Jika dibatalkan sekarang, perubahan Anda akan hilang.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -112,7 +112,7 @@ fun DiscardChangesDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Discard",
+                        text = "Batalkan",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -133,7 +133,7 @@ fun DiscardChangesDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

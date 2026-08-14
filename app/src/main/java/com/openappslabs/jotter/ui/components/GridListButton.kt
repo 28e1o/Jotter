@@ -108,7 +108,7 @@ fun GridListButton(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ViewList,
-                    contentDescription = "List View",
+                    contentDescription = "Tampilan Daftar",
                     tint = if (!isGridView) activeContentColor else inactiveContentColor
                 )
             }
@@ -133,7 +133,7 @@ fun GridListButton(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.GridView,
-                    contentDescription = "Grid View",
+                    contentDescription = "Tampilan Grid",
                     tint = if (isGridView) activeContentColor else inactiveContentColor
                 )
             }

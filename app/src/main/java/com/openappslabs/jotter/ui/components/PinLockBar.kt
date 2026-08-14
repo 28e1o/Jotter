@@ -70,11 +70,11 @@ fun PinLockBar(
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 ) {
-                    Icon(Icons.Filled.PushPin, contentDescription = "Unpin")
+                    Icon(Icons.Filled.PushPin, contentDescription = "Lepas Semat")
                 }
             } else {
                 IconButton(onClick = handlePinClick) {
-                    Icon(Icons.Outlined.PushPin, contentDescription = "Pin")
+                    Icon(Icons.Outlined.PushPin, contentDescription = "Semat")
                 }
             }
 
@@ -86,11 +86,11 @@ fun PinLockBar(
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Icon(Icons.Filled.Lock, contentDescription = "Unlock")
+                    Icon(Icons.Filled.Lock, contentDescription = "Buka Kunci")
                 }
             } else {
                 IconButton(onClick = handleLockClick) {
-                    Icon(Icons.Outlined.LockOpen, contentDescription = "Lock")
+                    Icon(Icons.Outlined.LockOpen, contentDescription = "Kunci")
                 }
             }
         }

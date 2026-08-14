@@ -78,7 +78,7 @@ fun SearchBar(
     onProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Search Notes"
+    placeholder: String = "Cari Catatan"
 ) {
     val haptics = rememberJotterHaptics()
     val focusManager = LocalFocusManager.current
@@ -147,7 +147,7 @@ fun SearchBar(
                 if (hasQuery) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
-                        contentDescription = "Search",
+                        contentDescription = "Cari",
                         tint = onSurfaceVariantColor,
                         modifier = Modifier.padding(12.dp)
                     )
@@ -158,7 +158,7 @@ fun SearchBar(
                     }) {
                         Image(
                             painter = painterResource(id = R.drawable.app_icon),
-                            contentDescription = "App Icon",
+                            contentDescription = "Ikon Aplikasi",
                             colorFilter = ColorFilter.tint(onSurfaceVariantColor),
                             modifier = Modifier.size(24.dp)
                         )
@@ -210,7 +210,7 @@ fun SearchBar(
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
-                            contentDescription = "Clear search",
+                            contentDescription = "Hapus pencarian",
                             tint = onSurfaceVariantColor
                         )
                     }
@@ -221,7 +221,7 @@ fun SearchBar(
                     }) {
                         Icon(
                             imageVector = Icons.Rounded.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = "Pengaturan",
                             tint = onSurfaceVariantColor
                         )
                     }

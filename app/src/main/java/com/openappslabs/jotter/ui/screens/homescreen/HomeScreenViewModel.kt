@@ -50,14 +50,18 @@ class HomeScreenViewModel @Inject constructor(
 
     val uiState: StateFlow<UiState> = combine(
         notesRepository.getAllNotes(),
-        categoryRepository.getAllCategories().map { list -> list.map { it.name } },
+        categoryRepository.getAllCategories(),
         userPreferencesRepository.userPreferencesFlow,
         _selectedCategory,
         _searchQuery
     ) { notes, categories, prefs, selectedCategory, searchQuery ->
-        val activeCategories = categories.filter { category ->
+        val activeCategories = categories.map { it.name }.filter { category ->
             notes.any { it.category == category }
         }
+
+        val categoryColors = categories
+            .filter { !it.color.isNullOrBlank() }
+            .associate { it.name to it.color!! }
 
         val validatedCategory = if (selectedCategory != "All" && 
             !listOf("Pinned", "Locked").contains(selectedCategory) && 
@@ -116,6 +120,8 @@ class HomeScreenViewModel @Inject constructor(
             searchQuery = searchQuery,
             isGridView = prefs.isGridView,
             allAvailableCategories = activeCategories,
+            categoryColors = categoryColors,
+            isHomeFocusMode = prefs.isHomeFocusMode,
             showAddCategoryButton = prefs.showAddCategoryButton,
             showSortButton = prefs.showSortButton,
             isBiometricEnabled = prefs.isBiometricEnabled,
@@ -138,6 +144,8 @@ class HomeScreenViewModel @Inject constructor(
         val searchQuery: String = "",
         val isGridView: Boolean = true,
         val allAvailableCategories: List<String> = emptyList(),
+        val categoryColors: Map<String, String> = emptyMap(),
+        val isHomeFocusMode: Boolean = false,
         val showAddCategoryButton: Boolean = true,
         val showSortButton: Boolean = false,
         val isBiometricEnabled: Boolean = false,

@@ -65,7 +65,7 @@ fun PrivacyPolicyScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Privacy Policy",
+                        text = "Kebijakan Privasi",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -85,7 +85,7 @@ fun PrivacyPolicyScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -114,43 +114,43 @@ fun PrivacyPolicyScreen(
         ) {
             item {
                 PolicyCard(
-                    title = "1. Introduction",
-                    content = "Welcome to Jotter! I respect your privacy. This policy explains how I handle data in the app. If you have any questions, feel free to contact me."
+                    title = "1. Pendahuluan",
+                    content = "Selamat datang di Jotter! Saya menghormati privasi Anda. Kebijakan ini menjelaskan bagaimana saya menangani data di aplikasi. Jika Anda memiliki pertanyaan, silakan hubungi saya."
                 )
             }
 
             item {
                 PolicyCard(
-                    title = "2. Information I Collect",
-                    content = "Jotter does not collect any personal data. All notes, categories, and preferences are stored locally on your device. No data is shared."
+                    title = "2. Informasi yang Saya Kumpulkan",
+                    content = "Jotter tidak mengumpulkan data pribadi apa pun. Semua catatan, kategori, dan preferensi disimpan secara lokal di perangkat Anda. Tidak ada data yang dibagikan."
                 )
             }
 
             item {
                 PolicyCard(
-                    title = "3. Use of Your Information",
-                    content = "I do not use, share, or process any of your data. Your notes and information remain on your device and are used only for the functionality of the app."
+                    title = "3. Penggunaan Informasi Anda",
+                    content = "Saya tidak menggunakan, membagikan, atau memproses data Anda. Catatan dan informasi Anda tetap berada di perangkat Anda dan hanya digunakan untuk fungsionalitas aplikasi."
                 )
             }
 
             item {
                 PolicyCard(
-                    title = "4. Third-Party Services",
-                    content = "Jotter does not use third-party services, including analytics, ads, or data collection tools. Your data stays private and local to your device."
+                    title = "4. Layanan Pihak Ketiga",
+                    content = "Jotter tidak menggunakan layanan pihak ketiga, termasuk analitik, iklan, atau alat pengumpulan data. Data Anda tetap privat dan lokal di perangkat Anda."
                 )
             }
 
             item {
                 PolicyCard(
-                    title = "5. Contact Me",
-                    content = "If you have any questions or concerns, you can reach out to me via GitHub."
+                    title = "5. Hubungi Saya",
+                    content = "Jika Anda memiliki pertanyaan atau kekhawatiran, Anda dapat menghubungi saya melalui GitHub."
                 )
             }
 
             item {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Last Updated: December 03, 2025",
+                    text = "Terakhir Diperbarui: 3 Desember 2025",
                     style = MaterialTheme.typography.bodySmall,
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

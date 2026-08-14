@@ -82,7 +82,7 @@ fun NoteActionDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Move Note?",
+                        text = "Pindahkan Catatan?",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -107,7 +107,7 @@ fun NoteActionDialog(
                         contentPadding = ZeroPadding
                     ) {
                         Text(
-                            text = "Move to Trash",
+                            text = "Pindahkan ke Sampah",
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -131,7 +131,7 @@ fun NoteActionDialog(
                         contentPadding = ZeroPadding
                     ) {
                         Text(
-                            text = "Archive Note",
+                            text = "Arsipkan Catatan",
                             fontWeight = FontWeight.SemiBold
                         )
                     }

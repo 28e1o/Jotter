@@ -22,10 +22,12 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -88,6 +90,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openappslabs.jotter.ui.components.DeleteCategoryDialog
+import com.openappslabs.jotter.ui.theme.parseAccentColor
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,6 +102,7 @@ fun AddCategoryScreen(
     val haptics = rememberJotterHaptics()
     var textFieldValue by remember { mutableStateOf(TextFieldValue("")) }
     var editingCategoryName by remember { mutableStateOf<String?>(null) }
+    var editingColor by remember { mutableStateOf<String?>(null) }
     var categoryToDelete by remember { mutableStateOf<String?>(null) }
     var lastToastTime by remember { mutableLongStateOf(0L) }
 
@@ -120,25 +124,26 @@ fun AddCategoryScreen(
             focusManager.clearFocus()
             textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
             editingCategoryName = null
+            editingColor = null
         }
     }
 
-    val performAction = remember(isActionEnabled, textFieldValue, categories, editingCategoryName, lastToastTime) {
+    val performAction = remember(isActionEnabled, textFieldValue, categories, editingCategoryName, editingColor, lastToastTime) {
         {
             if (isActionEnabled) {
                 val trimmed = textFieldValue.text.trim()
                 if (trimmed.isNotBlank()) {
-                    val isDuplicate = categories.any { it.equals(trimmed, ignoreCase = true) }
+                    val isDuplicate = categories.any { it.name.equals(trimmed, ignoreCase = true) }
                     if (isDuplicate && trimmed != editingCategoryName) {
                         val currentTime = System.currentTimeMillis()
                         if (currentTime - lastToastTime > 2000) {
-                            Toast.makeText(context, "Category \"$trimmed\" already exists", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Kategori \"$trimmed\" sudah ada", Toast.LENGTH_SHORT).show()
                             lastToastTime = currentTime
                         }
                     } else {
                         haptics.success()
                         if (editingCategoryName != null) {
-                            viewModel.updateCategory(editingCategoryName!!, trimmed)
+                            viewModel.updateCategory(editingCategoryName!!, trimmed, editingColor)
                         } else {
                             viewModel.addCategory(trimmed)
                         }
@@ -191,7 +196,7 @@ fun AddCategoryScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Manage Categories",
+                        text = "Kelola Kategori",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -211,7 +216,7 @@ fun AddCategoryScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -247,7 +252,7 @@ fun AddCategoryScreen(
             item {
                 Column {
                     Text(
-                        text = "Create categories to organize your notes.",
+                        text = "Buat kategori untuk mengatur catatan Anda.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -273,7 +278,7 @@ fun AddCategoryScreen(
                                     textFieldValue = newValue.copy(text = filteredText)
                                 }
                             },
-                            placeholder = { Text(if (editingCategoryName == null) "Category name" else "Update name") },
+                            placeholder = { Text(if (editingCategoryName == null) "Nama kategori" else "Perbarui nama") },
                             textStyle = MaterialTheme.typography.bodyLarge,
                             colors = transparentColors,
                             singleLine = true,
@@ -308,7 +313,7 @@ fun AddCategoryScreen(
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Default.Close, "Clear", modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Close, "Bersihkan", modifier = Modifier.size(18.dp))
                                 }
                             }
 
@@ -336,6 +341,15 @@ fun AddCategoryScreen(
                 }
             }
 
+            if (editingCategoryName != null) {
+                item {
+                    CategoryColorPalette(
+                        selectedColor = editingColor,
+                        onColorSelected = { editingColor = it }
+                    )
+                }
+            }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -343,7 +357,7 @@ fun AddCategoryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "EXISTING CATEGORIES",
+                        text = "KATEGORI YANG ADA",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -357,23 +371,25 @@ fun AddCategoryScreen(
                 }
             }
 
-            items(categories, key = { it }) { category ->
+            items(categories, key = { it.name }) { category ->
                 CategoryChip(
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(300),
                         fadeOutSpec = tween(300)
                     ),
-                    text = category,
+                    text = category.name,
+                    color = category.color,
                     enabled = editingCategoryName == null,
                     onEdit = {
                         haptics.tick()
-                        textFieldValue = TextFieldValue(text = category, selection = TextRange(category.length))
-                        editingCategoryName = category
+                        textFieldValue = TextFieldValue(text = category.name, selection = TextRange(category.name.length))
+                        editingCategoryName = category.name
+                        editingColor = category.color
                         focusRequester.requestFocus()
                     },
                     onDelete = {
                         haptics.click()
-                        categoryToDelete = category
+                        categoryToDelete = category.name
                     }
                 )
             }
@@ -387,11 +403,13 @@ fun AddCategoryScreen(
 fun CategoryChip(
     modifier: Modifier = Modifier,
     text: String,
+    color: String? = null,
     enabled: Boolean = true,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val alpha = if (enabled) 1f else 0.38f
+    val categoryColor = parseAccentColor(color ?: "")
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -408,6 +426,14 @@ fun CategoryChip(
                 .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (categoryColor != null) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(categoryColor)
+                )
+            }
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
@@ -427,7 +453,7 @@ fun CategoryChip(
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Edit, "Edit", modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Edit, "Sunting", modifier = Modifier.size(18.dp))
                 }
             }
 
@@ -441,8 +467,80 @@ fun CategoryChip(
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Delete, "Remove", modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Delete, "Hapus", modifier = Modifier.size(18.dp))
                 }
+            }
+        }
+    }
+}
+
+private val CategoryColorPaletteColors = listOf(
+    "#E53935", "#FB8C00", "#FDD835", "#43A047", "#1E88E5",
+    "#3949AB", "#8E24AA", "#D81B60", "#00897B", "#5E35B1"
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CategoryColorPalette(
+    selectedColor: String?,
+    onColorSelected: (String?) -> Unit
+) {
+    Column {
+        Text(
+            text = "Warna kategori",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .border(
+                        width = 2.dp,
+                        color = if (selectedColor == null) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+                    .clickable {
+                        haptics.tick()
+                        onColorSelected(null)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Tanpa warna",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            CategoryColorPaletteColors.forEach { hex ->
+                val parsed = parseAccentColor(hex) ?: return@forEach
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(parsed)
+                        .border(
+                            width = 2.dp,
+                            color = if (selectedColor == hex) MaterialTheme.colorScheme.primary
+                            else Color.Transparent,
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            haptics.tick()
+                            onColorSelected(hex)
+                        }
+                )
             }
         }
     }

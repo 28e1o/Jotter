@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openappslabs.jotter.data.model.Note
+import com.openappslabs.jotter.ui.theme.parseAccentColor
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +59,8 @@ fun NoteCard(
     date: String,
     isGridView: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    categoryColor: String? = null
 ) {
     val haptics = rememberJotterHaptics()
 
@@ -71,7 +73,7 @@ fun NoteCard(
     }
 
     val displayContent = remember(note.content, note.isLocked, isGridView) {
-        if (note.isLocked && !isGridView) "Locked Note" else note.content
+        if (note.isLocked && !isGridView) "Catatan Terkunci" else note.content
     }
 
     val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
@@ -81,13 +83,23 @@ fun NoteCard(
 
     val isCategoryBlank = note.category.isBlank()
     val categoryText = remember(note.category, isCategoryBlank) {
-        if (isCategoryBlank) "UNCATEGORIZED" else note.category.uppercase()
+        if (isCategoryBlank) "TANPA KATEGORI" else note.category.uppercase()
     }
 
-    val chipContainerColor = if (isCategoryBlank) {
-        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
-    } else {
-        MaterialTheme.colorScheme.surfaceContainerHigh
+    val parsedCategoryColor = remember(categoryColor) {
+        parseAccentColor(categoryColor ?: "")
+    }
+
+    val chipContainerColor = when {
+        isCategoryBlank -> MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
+        parsedCategoryColor != null -> parsedCategoryColor.copy(alpha = 0.18f)
+        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+
+    val chipTextColor = when {
+        isCategoryBlank -> onSurfaceVariant.copy(alpha = 0.7f)
+        parsedCategoryColor != null -> parsedCategoryColor
+        else -> onSurfaceVariant
     }
 
     Card(
@@ -113,7 +125,7 @@ fun NoteCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     Text(
-                        text = if (note.title.isEmpty()) "Untitled" else note.title,
+                        text = if (note.title.isEmpty()) "Tanpa Judul" else note.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -124,7 +136,7 @@ fun NoteCard(
                         if (note.isPinned) {
                             Icon(
                                 imageVector = Icons.Default.PushPin,
-                                contentDescription = "Pinned",
+                                contentDescription = "Disematkan",
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -135,7 +147,7 @@ fun NoteCard(
                         if (note.isLocked && !isGridView) {
                             Icon(
                                 imageVector = Icons.Default.Lock,
-                                contentDescription = "Locked",
+                                contentDescription = "Terkunci",
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -154,7 +166,7 @@ fun NoteCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Lock,
-                            contentDescription = "Locked",
+                            contentDescription = "Terkunci",
                             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f),
                             modifier = Modifier.size(24.dp)
                         )
@@ -192,7 +204,7 @@ fun NoteCard(
                         text = categoryText,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = if (isCategoryBlank) contentColor.copy(alpha = 0.7f) else onSurfaceVariant,
+                        color = chipTextColor,
                         fontSize = 10.sp
                     )
                 }

@@ -93,7 +93,7 @@ fun SortSheet(
                     .verticalScroll(scrollState)
             ) {
                 Text(
-                    text = "Sort",
+                    text = "Urutkan",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -116,7 +116,7 @@ fun SortSheet(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     SortChip(
-                        label = "Ascending",
+                        label = "Menaik",
                         icon = Icons.Default.ArrowUpward,
                         isSelected = currentSortDirection == SortDirection.ASCENDING,
                         onClick = {
@@ -126,7 +126,7 @@ fun SortSheet(
                         modifier = Modifier.weight(1f)
                     )
                     SortChip(
-                        label = "Descending",
+                        label = "Menurun",
                         icon = Icons.Default.ArrowDownward,
                         isSelected = currentSortDirection == SortDirection.DESCENDING,
                         onClick = {
@@ -146,7 +146,7 @@ fun SortSheet(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     SortChip(
-                        label = "Alphabetical",
+                        label = "Alfabetis",
                         icon = Icons.Default.SortByAlpha,
                         isSelected = currentSortType == SortType.ALPHABETICAL,
                         onClick = {
@@ -156,7 +156,7 @@ fun SortSheet(
                         modifier = Modifier.fillMaxWidth()
                     )
                     SortChip(
-                        label = "Date Created",
+                        label = "Tanggal Dibuat",
                         icon = Icons.Default.AccessTime,
                         isSelected = currentSortType == SortType.CREATED,
                         onClick = {
@@ -166,7 +166,7 @@ fun SortSheet(
                         modifier = Modifier.fillMaxWidth()
                     )
                     SortChip(
-                        label = "Last Updated",
+                        label = "Terakhir Diubah",
                         icon = Icons.Default.Update,
                         isSelected = currentSortType == SortType.LAST_UPDATED,
                         onClick = {

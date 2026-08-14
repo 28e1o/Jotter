@@ -101,8 +101,8 @@ class MainActivity : FragmentActivity() {
                 if (userPreferences?.isAppLockEnabled == true && !isAppAuthenticated) {
                     BiometricAuthUtil.authenticate(
                         activity = this@MainActivity,
-                        title = "Jotter Locked",
-                        subtitle = "Authenticate To Open The App",
+                        title = "Jotter Terkunci",
+                        subtitle = "Autentikasi Untuk Membuka Aplikasi",
                         onSuccess = { isAppAuthenticated = true },
                         onError = { finish() }
                     )
@@ -121,7 +121,8 @@ class MainActivity : FragmentActivity() {
                 isDarkTheme = darkTheme,
                 isTrueBlackEnabled = userPreferences?.isTrueBlackEnabled ?: false,
                 isDynamicColor = userPreferences?.isDynamicColor ?: true,
-                isHapticEnabled = userPreferences?.isHapticEnabled ?: true
+                isHapticEnabled = userPreferences?.isHapticEnabled ?: true,
+                accentColor = userPreferences?.accentColor ?: ""
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

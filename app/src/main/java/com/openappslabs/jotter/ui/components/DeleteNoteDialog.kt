@@ -78,7 +78,7 @@ fun DeleteNoteDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Delete Note?",
+                    text = "Hapus Catatan?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -88,7 +88,7 @@ fun DeleteNoteDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to move this note to trash?",
+                    text = "Anda yakin ingin memindahkan catatan ini ke sampah?",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -109,7 +109,7 @@ fun DeleteNoteDialog(
                     elevation = null,
                     contentPadding = ZeroPadding
                 ) {
-                    Text("Delete", fontWeight = FontWeight.SemiBold)
+                    Text("Hapus", fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -127,7 +127,7 @@ fun DeleteNoteDialog(
                     elevation = null,
                     contentPadding = ZeroPadding
                 ) {
-                    Text("Cancel", fontWeight = FontWeight.SemiBold)
+                    Text("Batal", fontWeight = FontWeight.SemiBold)
                 }
             }
         }

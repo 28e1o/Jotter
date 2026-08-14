@@ -90,6 +90,8 @@ class NotesRepositoryImpl @Inject constructor(
 
     override fun getCategories(): Flow<List<String>> = categoryDao.getAllCategoryNames()
 
+    override suspend fun getAllNotesSync(): List<Note> = noteDao.getAllNotesSync()
+
     override suspend fun getBackupData(): BackupData {
         val notes = noteDao.getAllNotesSync()
         val categories = categoryDao.getAllCategoriesSync()

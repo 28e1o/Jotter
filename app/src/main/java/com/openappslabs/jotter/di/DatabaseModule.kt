@@ -61,6 +61,12 @@ abstract class DatabaseModule {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `categories` ADD COLUMN `color` TEXT")
+            }
+        }
+
         @Provides
         @Singleton
         fun provideDatabase(@ApplicationContext context: Context): JotterDatabase {
@@ -69,7 +75,7 @@ abstract class DatabaseModule {
                 JotterDatabase::class.java,
                 "jotter_db"
             )
-                .addMigrations(MIGRATION_4_5)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }

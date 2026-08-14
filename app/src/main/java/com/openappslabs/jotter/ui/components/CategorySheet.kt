@@ -73,7 +73,7 @@ fun CategorySheet(
                 .padding(bottom = 16.dp)
         ) {
             Text(
-                text = "Choose Category",
+                text = "Pilih Kategori",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -147,7 +147,7 @@ fun CategorySheet(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Manage Categories")
+                Text(text = "Kelola Kategori")
             }
         }
     }

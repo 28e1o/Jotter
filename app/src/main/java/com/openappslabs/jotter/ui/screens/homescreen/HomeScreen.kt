@@ -50,9 +50,11 @@ import com.openappslabs.jotter.ui.components.CategoryBar
 import com.openappslabs.jotter.ui.components.CategoryItems
 import com.openappslabs.jotter.ui.components.FAB
 import com.openappslabs.jotter.ui.components.NoteCard
+import com.openappslabs.jotter.ui.components.QuickActionSheet
 import com.openappslabs.jotter.ui.components.SearchBar
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.BiometricAuthUtil
+import com.openappslabs.jotter.utils.NoteTemplate
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,6 +64,7 @@ import java.util.Locale
 fun HomeScreen(
     onNoteClick: (Int) -> Unit,
     onAddNoteClick: (String?) -> Unit,
+    onTemplateNoteClick: (NoteTemplate) -> Unit,
     onAddCategoryClick: () -> Unit,
     onSettingsClick: () -> Unit,
     viewModel: HomeScreenViewModel = hiltViewModel()
@@ -73,6 +76,7 @@ fun HomeScreen(
     val locale = Locale.getDefault()
 
     var showSortSheet by remember { mutableStateOf(false) }
+    var showQuickActionSheet by remember { mutableStateOf(false) }
     val sortSheetState = rememberModalBottomSheetState()
     val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
         val format = if (!uiState.isGridView) {
@@ -98,6 +102,9 @@ fun HomeScreen(
                 onClick = {
                     val category = if (uiState.selectedCategory == "All") null else uiState.selectedCategory
                     onAddNoteClick(category)
+                },
+                onLongClick = {
+                    showQuickActionSheet = true
                 }
             )
         }
@@ -107,32 +114,35 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            SearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = viewModel::onSearchQueryChange,
-                onProfileClick = {  },
-                onSettingsClick = {
-                    haptics.click()
-                    onSettingsClick()
-                },
-                modifier = Modifier.padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 8.dp)
-            )
+            if (!uiState.isHomeFocusMode) {
+                SearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = viewModel::onSearchQueryChange,
+                    onProfileClick = {  },
+                    onSettingsClick = {
+                        haptics.click()
+                        onSettingsClick()
+                    },
+                    modifier = Modifier.padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 8.dp)
+                )
 
-            CategoryBar(
-                categories = CategoryItems(uiState.allAvailableCategories),
-                selectedCategory = uiState.selectedCategory,
-                onCategorySelect = { viewModel.selectCategory(it) },
-                onAddCategoryClick = onAddCategoryClick,
-                showAddButton = uiState.showAddCategoryButton,
-                showSortButton = uiState.showSortButton,
-                modifier = Modifier.padding(bottom = 8.dp),
-                sortDirection = uiState.sortDirection,
-                sortType = uiState.sortType,
-                onSortClick = {
-                    haptics.tick()
-                    showSortSheet = true
-                }
-            )
+                CategoryBar(
+                    categories = CategoryItems(uiState.allAvailableCategories),
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelect = { viewModel.selectCategory(it) },
+                    onAddCategoryClick = onAddCategoryClick,
+                    showAddButton = uiState.showAddCategoryButton,
+                    showSortButton = uiState.showSortButton,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    sortDirection = uiState.sortDirection,
+                    sortType = uiState.sortType,
+                    categoryColors = uiState.categoryColors,
+                    onSortClick = {
+                        haptics.tick()
+                        showSortSheet = true
+                    }
+                )
+            }
 
             LazyVerticalStaggeredGrid(
                 state = listState,
@@ -158,6 +168,7 @@ fun HomeScreen(
                         note = note,
                         date = dateStr,
                         isGridView = uiState.isGridView,
+                        categoryColor = uiState.categoryColors[note.category],
                         onClick   = { 
                             haptics.tick()
                             viewModel.onNoteClicked(note.id)
@@ -166,13 +177,13 @@ fun HomeScreen(
                                 if (activity != null) {
                                     BiometricAuthUtil.authenticate(
                                         activity = activity,
-                                        title = "Unlock Note",
-                                        subtitle = "Authenticate to view this locked note",
+                                        title = "Buka Kunci Catatan",
+                                        subtitle = "Autentikasi untuk melihat catatan terkunci ini",
                                         onSuccess = {
                                             onNoteClick(note.id)
                                         },
                                         onError = { error ->
-                                            Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Autentikasi gagal", Toast.LENGTH_SHORT).show()
                                         }
                                     )
                                 } else {
@@ -201,6 +212,22 @@ fun HomeScreen(
                 viewModel.setSortDirection(it)
             },
             onDismissRequest = { showSortSheet = false }
+        )
+    }
+
+    if (showQuickActionSheet) {
+        QuickActionSheet(
+            categories = uiState.allAvailableCategories,
+            selectedCategory = uiState.selectedCategory,
+            onTemplateSelected = { template ->
+                showQuickActionSheet = false
+                onTemplateNoteClick(template)
+            },
+            onCategorySelected = { category ->
+                showQuickActionSheet = false
+                viewModel.selectCategory(category)
+            },
+            onDismiss = { showQuickActionSheet = false }
         )
     }
 }

@@ -107,7 +107,7 @@ fun EditViewButton(
             ) {
                 Icon(
                     imageVector = Icons.Default.Create,
-                    contentDescription = "Edit Mode",
+                    contentDescription = "Mode Edit",
                     tint = if (isEditing) activeContentColor else inactiveContentColor
                 )
             }
@@ -132,7 +132,7 @@ fun EditViewButton(
             ) {
                 Icon(
                     imageVector = Icons.Default.Visibility,
-                    contentDescription = "View Mode",
+                    contentDescription = "Mode Lihat",
                     tint = if (!isEditing) activeContentColor else inactiveContentColor
                 )
             }

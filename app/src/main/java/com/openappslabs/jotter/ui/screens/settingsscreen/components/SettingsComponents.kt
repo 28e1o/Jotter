@@ -10,10 +10,13 @@
 package com.openappslabs.jotter.ui.screens.settingsscreen.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -36,6 +40,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -44,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -55,6 +61,8 @@ import com.openappslabs.jotter.ui.components.EditViewButton
 import com.openappslabs.jotter.ui.components.GridListButton
 import com.openappslabs.jotter.ui.components.ThemeSelector
 import com.openappslabs.jotter.ui.components.TimeFormatButton
+import com.openappslabs.jotter.ui.theme.AccentPresets
+import com.openappslabs.jotter.ui.theme.parseAccentColor
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.AuthSupport
 
@@ -365,6 +373,191 @@ fun SettingsItemTheme(
         ThemeSelector(
             selectedTheme = selectedTheme,
             onThemeSelected = onThemeSelected
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun SettingsItemAccentColor(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    selectedColor: String,
+    onColorSelected: (String) -> Unit
+) {
+    val haptics = rememberJotterHaptics()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .border(
+                        width = 2.dp,
+                        color = if (selectedColor.isEmpty()) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outlineVariant,
+                        shape = CircleShape
+                    )
+                    .clickable {
+                        haptics.tick()
+                        onColorSelected("")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Warna default",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+
+            AccentPresets.forEach { preset ->
+                val parsed = parseAccentColor(preset.hex) ?: return@forEach
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(parsed)
+                        .border(
+                            width = 2.dp,
+                            color = if (selectedColor == preset.hex) MaterialTheme.colorScheme.primary
+                            else Color.Transparent,
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            haptics.tick()
+                            onColorSelected(preset.hex)
+                        }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsItemSlider(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    valueLabel: (Float) -> String,
+    onValueChange: (Float) -> Unit
+) {
+    val haptics = rememberJotterHaptics()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                }
+            }
+
+            Text(
+                text = valueLabel(value),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Slider(
+            value = value,
+            onValueChange = {
+                haptics.tick()
+                onValueChange(it)
+            },
+            valueRange = valueRange,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

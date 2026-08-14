@@ -80,7 +80,7 @@ fun EmptyTrashDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Empty Trash",
+                        text = "Kosongkan Sampah",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -90,7 +90,7 @@ fun EmptyTrashDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to permanently delete all notes? This action cannot be undone.",
+                    text = "Anda yakin ingin menghapus permanen semua catatan? Tindakan ini tidak dapat dibatalkan.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -112,7 +112,7 @@ fun EmptyTrashDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Empty Trash",
+                    text = "Kosongkan Sampah",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -133,7 +133,7 @@ fun EmptyTrashDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

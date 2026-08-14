@@ -98,7 +98,7 @@ fun TrashScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Trash",
+                        text = "Sampah",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -116,7 +116,7 @@ fun TrashScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -137,7 +137,7 @@ fun TrashScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Restore,
-                                    contentDescription = "Restore All",
+                                    contentDescription = "Pulihkan Semua",
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
                                 )
@@ -159,7 +159,7 @@ fun TrashScreen(
                         viewModel.onEmptyTrashClicked()
                     },
                     icon = { Icon(Icons.Default.DeleteForever, contentDescription = null) },
-                    text = { Text("Empty Trash") },
+                    text = { Text("Kosongkan Sampah") },
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                     elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
@@ -211,10 +211,10 @@ fun TrashScreen(
                                     if (activity != null) {
                                         BiometricAuthUtil.authenticate(
                                             activity = activity,
-                                            title = "Unlock Note",
-                                            subtitle = "Authenticate to view this locked note",
+                                            title = "Buka Kunci Catatan",
+                                            subtitle = "Autentikasi untuk melihat catatan terkunci ini",
                                             onSuccess = { onNoteClick(note.id) },
-                                            onError = { Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show() }
+                                            onError = { Toast.makeText(context, "Autentikasi gagal", Toast.LENGTH_SHORT).show() }
                                         )
                                     } else {
                                         onNoteClick(note.id)
@@ -266,7 +266,7 @@ private fun EmptyTrashContent() {
     ) {
         Icon(
             imageVector = Icons.Default.DeleteForever,
-            contentDescription = "Trash Icon",
+            contentDescription = "Ikon Sampah",
             modifier = Modifier.size(72.dp),
             tint = MaterialTheme.colorScheme.surfaceContainerHigh
         )
@@ -274,7 +274,7 @@ private fun EmptyTrashContent() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Nothing in the Trash",
+            text = "Tidak Ada di Sampah",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -283,7 +283,7 @@ private fun EmptyTrashContent() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Notes you delete will appear here, and are automatically removed after 7 days.",
+            text = "Catatan yang Anda hapus akan muncul di sini, dan otomatis dihapus setelah 7 hari.",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)

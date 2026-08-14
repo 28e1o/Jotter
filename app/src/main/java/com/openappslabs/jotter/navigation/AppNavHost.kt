@@ -52,6 +52,14 @@ fun AppNavHost(
                 onAddNoteClick = { category ->
                     navController.navigate(AppRoutes.NoteDetail(category = category))
                 },
+                onTemplateNoteClick = { template ->
+                    navController.navigate(
+                        AppRoutes.NoteDetail(
+                            templateTitle = template.title,
+                            templateContent = template.content
+                        )
+                    )
+                },
                 onAddCategoryClick = { navController.navigate(AppRoutes.AddCategory) },
                 onSettingsClick = { navController.navigate(AppRoutes.Settings) }
             )

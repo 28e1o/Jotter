@@ -25,6 +25,7 @@ interface NotesRepository {
     fun getTrashedNotes(): Flow<List<Note>>
     fun getCategories(): Flow<List<String>>
     suspend fun getNoteById(noteId: Int): Note?
+    suspend fun getAllNotesSync(): List<Note>
     suspend fun addNote(note: Note): Long
     suspend fun updateNote(note: Note)
 

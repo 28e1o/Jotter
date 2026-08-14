@@ -155,7 +155,7 @@ fun DateFormatButton(
                             .padding(start = HorizontalPadding, end = HorizontalPadding, top = 24.dp)
                     ) {
                         Text(
-                            text = "Date Format",
+                            text = "Format Tanggal",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -176,7 +176,7 @@ fun DateFormatButton(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
+                                contentDescription = "Tutup",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )

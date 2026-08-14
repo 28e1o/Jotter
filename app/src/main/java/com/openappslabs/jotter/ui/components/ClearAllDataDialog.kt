@@ -80,7 +80,7 @@ fun ClearAllDataDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Clear All Data",
+                        text = "Hapus Semua Data",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -90,7 +90,7 @@ fun ClearAllDataDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to clear all data? This action cannot be undone.",
+                    text = "Anda yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -112,7 +112,7 @@ fun ClearAllDataDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Clear All Data",
+                    text = "Hapus Semua Data",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -133,7 +133,7 @@ fun ClearAllDataDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

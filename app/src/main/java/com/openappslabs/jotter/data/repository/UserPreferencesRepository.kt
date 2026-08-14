@@ -21,6 +21,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.openappslabs.jotter.ui.components.SortDirection
 import com.openappslabs.jotter.ui.components.SortType
@@ -48,7 +49,11 @@ data class UserPreferences(
     val is24HourFormat: Boolean = false,
     val dateFormat: String = "dd MMM",
     val sortType: String = SortType.ALPHABETICAL.name,
-    val sortDirection: String = SortDirection.ASCENDING.name
+    val sortDirection: String = SortDirection.ASCENDING.name,
+    val fontSizeScale: Float = 1f,
+    val lineSpacingScale: Float = 1f,
+    val accentColor: String = "",
+    val isHomeFocusMode: Boolean = false
 )
 
 class UserPreferencesRepository @Inject constructor(
@@ -71,6 +76,10 @@ class UserPreferencesRepository @Inject constructor(
         val DATE_FORMAT = stringPreferencesKey("date_format")
         val SORT_TYPE = stringPreferencesKey("sort_type")
         val SORT_DIRECTION = stringPreferencesKey("sort_direction")
+        val FONT_SIZE_SCALE = floatPreferencesKey("font_size_scale")
+        val LINE_SPACING_SCALE = floatPreferencesKey("line_spacing_scale")
+        val ACCENT_COLOR = stringPreferencesKey("accent_color")
+        val IS_HOME_FOCUS_MODE = booleanPreferencesKey("is_home_focus_mode")
     }
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
         .catch { exception ->
@@ -98,7 +107,11 @@ class UserPreferencesRepository @Inject constructor(
                 is24HourFormat = preferences[Keys.IS_24_HOUR_FORMAT] ?: false,
                 dateFormat = preferences[Keys.DATE_FORMAT] ?: "dd MMM",
                 sortType = preferences[Keys.SORT_TYPE] ?: SortType.ALPHABETICAL.name,
-                sortDirection = preferences[Keys.SORT_DIRECTION] ?: SortDirection.ASCENDING.name
+                sortDirection = preferences[Keys.SORT_DIRECTION] ?: SortDirection.ASCENDING.name,
+                fontSizeScale = preferences[Keys.FONT_SIZE_SCALE] ?: 1f,
+                lineSpacingScale = preferences[Keys.LINE_SPACING_SCALE] ?: 1f,
+                accentColor = preferences[Keys.ACCENT_COLOR] ?: "",
+                isHomeFocusMode = preferences[Keys.IS_HOME_FOCUS_MODE] ?: false
             )
         }
         .distinctUntilChanged()
@@ -169,5 +182,21 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setSortDirection(sortDirection: String) {
         dataStore.edit { it[Keys.SORT_DIRECTION] = sortDirection }
+    }
+
+    suspend fun setFontSizeScale(scale: Float) {
+        dataStore.edit { it[Keys.FONT_SIZE_SCALE] = scale }
+    }
+
+    suspend fun setLineSpacingScale(scale: Float) {
+        dataStore.edit { it[Keys.LINE_SPACING_SCALE] = scale }
+    }
+
+    suspend fun setAccentColor(color: String) {
+        dataStore.edit { it[Keys.ACCENT_COLOR] = color }
+    }
+
+    suspend fun setHomeFocusMode(enabled: Boolean) {
+        dataStore.edit { it[Keys.IS_HOME_FOCUS_MODE] = enabled }
     }
 }

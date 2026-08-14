@@ -18,6 +18,7 @@ package com.openappslabs.jotter.ui.screens.addcategoryscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.openappslabs.jotter.data.model.Category
 import com.openappslabs.jotter.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,8 +33,7 @@ import javax.inject.Inject
 class AddCategoryScreenViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) : ViewModel() {
-    val categories: StateFlow<List<String>> = categoryRepository.getAllCategories()
-        .map { categoryList -> categoryList.map { it.name } }
+    val categories: StateFlow<List<Category>> = categoryRepository.getAllCategories()
         .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
@@ -43,19 +43,28 @@ class AddCategoryScreenViewModel @Inject constructor(
 
     fun addCategory(newCategory: String) {
         val trimmed = newCategory.trim()
-        if (trimmed.isNotBlank() && !categories.value.contains(trimmed)) {
+        if (trimmed.isNotBlank() && !categories.value.any { it.name.equals(trimmed, ignoreCase = true) }) {
             viewModelScope.launch {
                 categoryRepository.insertCategory(trimmed)
             }
         }
     }
 
-    fun updateCategory(oldName: String, newName: String) {
+    fun updateCategory(oldName: String, newName: String, color: String?) {
         val trimmedNew = newName.trim()
         if (trimmedNew.isNotBlank() && oldName != trimmedNew) {
             viewModelScope.launch {
                 categoryRepository.renameCategory(oldName, trimmedNew)
+                if (color != null) {
+                    categoryRepository.setCategoryColor(trimmedNew, color)
+                }
             }
+        }
+    }
+
+    fun setCategoryColor(name: String, color: String?) {
+        viewModelScope.launch {
+            categoryRepository.setCategoryColor(name, color)
         }
     }
 

@@ -64,19 +64,19 @@ fun BackupRestoreDialog(
 ) {
     val title = remember(type) {
         when (type) {
-            BackupDialogType.NO_DATA_TO_EXPORT -> "No Data Found"
-            BackupDialogType.EXPORT_SUCCESS -> "Backup Saved"
-            BackupDialogType.IMPORT_SUCCESS -> "Restore Complete"
-            BackupDialogType.ERROR -> "Operation Failed"
+            BackupDialogType.NO_DATA_TO_EXPORT -> "Tidak Ada Data"
+            BackupDialogType.EXPORT_SUCCESS -> "Cadangan Tersimpan"
+            BackupDialogType.IMPORT_SUCCESS -> "Pemulihan Selesai"
+            BackupDialogType.ERROR -> "Operasi Gagal"
         }
     }
 
     val message = remember(type, errorMessage) {
         when (type) {
-            BackupDialogType.NO_DATA_TO_EXPORT -> "You don't have any notes. Please create some notes before exporting."
-            BackupDialogType.EXPORT_SUCCESS -> "Your notes have been successfully exported to your device."
-            BackupDialogType.IMPORT_SUCCESS -> "Your notes and categories have been successfully restored."
-            BackupDialogType.ERROR -> errorMessage ?: "An unknown error occurred."
+            BackupDialogType.NO_DATA_TO_EXPORT -> "Anda belum memiliki catatan. Silakan buat catatan terlebih dahulu sebelum mengekspor."
+            BackupDialogType.EXPORT_SUCCESS -> "Catatan Anda berhasil diekspor ke perangkat."
+            BackupDialogType.IMPORT_SUCCESS -> "Catatan dan kategori Anda berhasil dipulihkan."
+            BackupDialogType.ERROR -> errorMessage ?: "Terjadi kesalahan yang tidak diketahui."
         }
     }
 
@@ -153,7 +153,7 @@ fun BackupRestoreDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Okay",
+                        text = "Oke",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

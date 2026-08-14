@@ -31,6 +31,9 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LineWeight
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Schedule
@@ -52,9 +55,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openappslabs.jotter.ui.screens.settingsscreen.SettingsScreenViewModel
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsGroup
+import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemAccentColor
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemDateFormat
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemEditView
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemGridView
+import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemSlider
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemSwitch
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemTheme
 import com.openappslabs.jotter.ui.screens.settingsscreen.components.SettingsItemTimeFormat
@@ -90,7 +95,7 @@ fun AppearanceScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Appearance",
+                        text = "Tampilan",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -110,7 +115,7 @@ fun AppearanceScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -135,8 +140,8 @@ fun AppearanceScreen(
                 SettingsGroup {
                     SettingsItemTheme(
                         icon = Icons.Default.DarkMode,
-                        title = "App theme",
-                        subtitle = "Select app appearance",
+                        title = "Tema aplikasi",
+                        subtitle = "Pilih tampilan aplikasi",
                         selectedTheme = uiState.appTheme,
                         onThemeSelected = viewModel::updateAppTheme
                     )
@@ -144,8 +149,8 @@ fun AppearanceScreen(
 
                     SettingsItemSwitch(
                         icon = Icons.Default.Brightness2,
-                        title = "True dark mode",
-                        subtitle = "Pure black for OLED displays",
+                        title = "Mode gelap sejati",
+                        subtitle = "Hitam murni untuk layar OLED",
                         checked = uiState.isTrueBlackEnabled,
                         onCheckedChange = viewModel::updateTrueBlackMode
                     )
@@ -153,10 +158,44 @@ fun AppearanceScreen(
 
                     SettingsItemSwitch(
                         icon = Icons.Default.ColorLens,
-                        title = "Dynamic colors",
-                        subtitle = "Adapt to wallpaper",
+                        title = "Warna dinamis",
+                        subtitle = "Sesuaikan dengan wallpaper",
                         checked = uiState.isDynamicColor,
                         onCheckedChange = viewModel::updateDynamicColor
+                    )
+                    TinyGap()
+
+                    SettingsItemAccentColor(
+                        icon = Icons.Default.Palette,
+                        title = "Warna aksen",
+                        subtitle = "Pilih warna utama aplikasi",
+                        selectedColor = uiState.accentColor,
+                        onColorSelected = viewModel::updateAccentColor
+                    )
+                }
+            }
+            item {
+                SettingsGroup {
+                    SettingsItemSlider(
+                        icon = Icons.Default.TextFields,
+                        title = "Ukuran teks",
+                        subtitle = "Sesuaikan ukuran teks editor",
+                        value = uiState.fontSizeScale,
+                        valueRange = 0.8f..1.4f,
+                        valueLabel = { scale -> "${(scale * 100).toInt()}%" },
+                        onValueChange = viewModel::updateFontSizeScale
+                    )
+
+                    TinyGap()
+
+                    SettingsItemSlider(
+                        icon = Icons.Default.LineWeight,
+                        title = "Spasi baris",
+                        subtitle = "Sesuaikan jarak antar baris",
+                        value = uiState.lineSpacingScale,
+                        valueRange = 0.8f..1.5f,
+                        valueLabel = { scale -> "${(scale * 100).toInt()}%" },
+                        onValueChange = viewModel::updateLineSpacingScale
                     )
                 }
             }
@@ -164,8 +203,8 @@ fun AppearanceScreen(
                 SettingsGroup {
                     SettingsItemEditView(
                         icon = Icons.Default.Edit,
-                        title = "Default open mode",
-                        subtitle = "View or edit",
+                        title = "Mode buka default",
+                        subtitle = "Lihat atau edit",
                         isEditDefault = uiState.defaultOpenInEdit,
                         onToggleEditDefault = viewModel::updateDefaultOpenInEdit
                     )
@@ -174,8 +213,8 @@ fun AppearanceScreen(
 
                     SettingsItemGridView(
                         icon = Icons.Outlined.Dashboard,
-                        title = "Default view mode",
-                        subtitle = if (uiState.isGridView) "Grid view" else "List view",
+                        title = "Mode tampilan default",
+                        subtitle = if (uiState.isGridView) "Tampilan grid" else "Tampilan daftar",
                         isGridView = uiState.isGridView,
                         onToggle = {
                             viewModel.updateGridView(!uiState.isGridView)
@@ -187,8 +226,8 @@ fun AppearanceScreen(
                 SettingsGroup {
                     SettingsItemTimeFormat(
                         icon = Icons.Outlined.Schedule,
-                        title = "Default time format",
-                        subtitle = if (uiState.is24HourFormat) "24‑hour clock" else "12 hour (AM/PM)",
+                        title = "Format waktu default",
+                        subtitle = if (uiState.is24HourFormat) "Jam 24 jam" else "12 jam (AM/PM)",
                         is24Hour = uiState.is24HourFormat,
                         onToggle = viewModel::updateTimeFormat
                     )
@@ -197,8 +236,8 @@ fun AppearanceScreen(
 
                     SettingsItemDateFormat(
                         icon = Icons.Outlined.CalendarMonth,
-                        title = "Date format",
-                        subtitle = "Change how dates appear",
+                        title = "Format tanggal",
+                        subtitle = "Ubah cara tanggal ditampilkan",
                         currentFormat = uiState.dateFormat,
                         onFormatSelected = viewModel::updateDateFormat
                     )

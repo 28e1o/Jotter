@@ -37,6 +37,9 @@ interface CategoryDao {
     @Query("UPDATE categories SET name = :newName WHERE name = :oldName")
     suspend fun updateCategoryName(oldName: String, newName: String)
 
+    @Query("UPDATE categories SET color = :color WHERE name = :name")
+    suspend fun updateCategoryColor(name: String, color: String?)
+
     @Query("DELETE FROM categories WHERE name = :name")
     suspend fun deleteCategoryByName(name: String)
 

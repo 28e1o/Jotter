@@ -19,6 +19,8 @@ package com.openappslabs.jotter.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.FloatingActionButton
@@ -34,9 +36,11 @@ import androidx.compose.ui.unit.dp
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FAB(
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val haptics = rememberJotterHaptics()
@@ -64,15 +68,30 @@ fun FAB(
         )
     }
 
+    val fabModifier = modifier.graphicsLayer {
+        val s = scale.value
+        scaleX = s
+        scaleY = s
+    }
+
     FloatingActionButton(
         onClick = {
             haptics.click()
             onClick()
         },
-        modifier = modifier.graphicsLayer {
-            val s = scale.value
-            scaleX = s
-            scaleY = s
+        modifier = if (onLongClick != null) {
+            fabModifier.combinedClickable(
+                onClick = {
+                    haptics.click()
+                    onClick()
+                },
+                onLongClick = {
+                    haptics.tick()
+                    onLongClick()
+                }
+            )
+        } else {
+            fabModifier
         },
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -80,7 +99,7 @@ fun FAB(
     ) {
         Icon(
             imageVector = Icons.Rounded.Add,
-            contentDescription = "Create note"
+            contentDescription = "Buat catatan"
         )
     }
 }

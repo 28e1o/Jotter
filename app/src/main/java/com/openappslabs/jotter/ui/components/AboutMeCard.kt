@@ -36,7 +36,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 @Composable
 fun AboutMeCard() {
     val name = "rajat"
-    val role = "DEVELOPER"
+    val role = "PENGEMBANG"
     val pfpShape = MaterialShapes.Cookie9Sided.toShape()
 
     Card(

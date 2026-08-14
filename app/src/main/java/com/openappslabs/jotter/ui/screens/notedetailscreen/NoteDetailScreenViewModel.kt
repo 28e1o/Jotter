@@ -41,6 +41,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val MAX_UNDO_STEPS = 50
+
 @HiltViewModel
 class NoteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -52,6 +54,8 @@ class NoteDetailViewModel @Inject constructor(
     private val route = savedStateHandle.toRoute<AppRoutes.NoteDetail>()
     private val noteId = route.noteId
     private val passedCategory = route.category
+    private val templateTitle = route.templateTitle
+    private val templateContent = route.templateContent
 
     val userPreferences: StateFlow<UserPreferences> = userPreferencesRepository.userPreferencesFlow
         .distinctUntilChanged()
@@ -71,13 +75,18 @@ class NoteDetailViewModel @Inject constructor(
         val lastEdited: Long = System.currentTimeMillis(),
         val isNotePersisted: Boolean = false,
         val isLoading: Boolean = true,
-        val isModified: Boolean = false
+        val isModified: Boolean = false,
+        val canUndo: Boolean = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var originalState: UiState? = null
+
+    private data class Snapshot(val title: String, val content: String, val category: String)
+
+    private val undoHistory = ArrayDeque<Snapshot>()
 
     val availableCategories: StateFlow<List<String>> = categoryRepository.getAllCategories()
         .map { categoryList -> categoryList.map { it.name } }
@@ -93,8 +102,10 @@ class NoteDetailViewModel @Inject constructor(
             loadNote(noteId)
         } else {
             val initialState = UiState(
+                title = templateTitle ?: "",
+                content = templateContent ?: "",
                 category = passedCategory ?: "",
-                isNotePersisted = false, 
+                isNotePersisted = false,
                 isLoading = false
             )
             _uiState.update { initialState }
@@ -152,6 +163,7 @@ class NoteDetailViewModel @Inject constructor(
                 )
                 _uiState.update { newState }
                 originalState = newState
+                clearUndoHistory()
             } else {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -191,17 +203,65 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
+    private fun pushSnapshot() {
+        val current = _uiState.value
+        val snapshot = Snapshot(current.title, current.content, current.category)
+        if (undoHistory.lastOrNull() == snapshot) return
+        undoHistory.addLast(snapshot)
+        while (undoHistory.size > MAX_UNDO_STEPS) {
+            undoHistory.removeFirst()
+        }
+        _uiState.update { it.copy(canUndo = true) }
+    }
+
+    private fun clearUndoHistory() {
+        undoHistory.clear()
+        _uiState.update { it.copy(canUndo = false) }
+    }
+
+    fun undo() {
+        val snapshot = undoHistory.removeLastOrNull() ?: return
+        _uiState.update {
+            it.copy(
+                title = snapshot.title,
+                content = snapshot.content,
+                category = snapshot.category,
+                canUndo = undoHistory.isNotEmpty()
+            )
+        }
+        checkForChanges()
+    }
+
+    fun toggleChecklist(line: Int, checked: Boolean) {
+        val lines = _uiState.value.content.split("\n")
+        if (line !in lines.indices) return
+        val old = lines[line]
+        val updated = if (checked) {
+            old.replaceFirst("- [ ] ", "- [x] ")
+        } else {
+            old.replaceFirst("- [x] ", "- [ ] ")
+        }
+        if (updated == old) return
+        pushSnapshot()
+        lines[line] = updated
+        _uiState.update { it.copy(content = lines.joinToString("\n")) }
+        checkForChanges()
+    }
+
     fun updateTitle(newTitle: String) {
+        pushSnapshot()
         _uiState.update { it.copy(title = newTitle) }
         checkForChanges()
     }
 
     fun updateContent(newContent: String) {
+        pushSnapshot()
         _uiState.update { it.copy(content = newContent) }
         checkForChanges()
     }
 
     fun updateCategory(newCategory: String) {
+        pushSnapshot()
         _uiState.update { it.copy(category = newCategory) }
         checkForChanges()
     }
@@ -242,6 +302,7 @@ class NoteDetailViewModel @Inject constructor(
                 val newId = notesRepository.addNote(noteToSave).toInt()
                 loadNote(newId)
             }
+            clearUndoHistory()
         }
     }
 
@@ -278,7 +339,7 @@ class NoteDetailViewModel @Inject constructor(
     fun duplicateNote(onComplete: (Int) -> Unit) {
         viewModelScope.launch {
             val current = uiState.value
-            val newTitle = if (current.title.isNotBlank()) "Copy of ${current.title}" else "Copy of Untitled"
+            val newTitle = if (current.title.isNotBlank()) "Salinan dari ${current.title}" else "Salinan dari Tanpa Judul"
             val duplicatedNote = Note(
                 id = 0,
                 title = newTitle,

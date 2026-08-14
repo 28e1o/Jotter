@@ -83,7 +83,7 @@ fun RestoreNoteDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Restore Note?",
+                    text = "Pulihkan Catatan?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -93,7 +93,7 @@ fun RestoreNoteDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to restore this note to your main list?",
+                    text = "Anda yakin ingin memulihkan catatan ini ke daftar utama Anda?",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -118,7 +118,7 @@ fun RestoreNoteDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Restore",
+                        text = "Pulihkan",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -142,7 +142,7 @@ fun RestoreNoteDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

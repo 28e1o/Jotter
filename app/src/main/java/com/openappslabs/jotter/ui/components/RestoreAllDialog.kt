@@ -68,7 +68,7 @@ fun RestoreAllDialog(
     }
 
     val noteCountText = remember(noteCount) {
-        if (noteCount == 1) "this note" else "$noteCount notes"
+        if (noteCount == 1) "catatan ini" else "$noteCount catatan"
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -88,7 +88,7 @@ fun RestoreAllDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Restore All Notes?",
+                    text = "Pulihkan Semua Catatan?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -98,7 +98,7 @@ fun RestoreAllDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to restore all $noteCountText to your active list?",
+                    text = "Anda yakin ingin memulihkan semua $noteCountText ke daftar aktif Anda?",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -123,7 +123,7 @@ fun RestoreAllDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Restore All",
+                        text = "Pulihkan Semua",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -147,7 +147,7 @@ fun RestoreAllDialog(
                     contentPadding = ZeroPadding
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

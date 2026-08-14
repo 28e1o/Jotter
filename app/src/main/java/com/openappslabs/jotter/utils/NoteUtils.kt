@@ -47,7 +47,7 @@ object NoteUtils {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, text)
         }
-        context.startActivity(Intent.createChooser(intent, "Share Note"))
+        context.startActivity(Intent.createChooser(intent, "Bagikan Catatan"))
     }
 
     fun saveTextToUri(context: Context, uri: Uri, text: String): Boolean {

@@ -104,7 +104,7 @@ fun NoteActionSheet(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             ActionButton(
                                 icon = Icons.Default.Delete,
-                                text = "Delete",
+                                text = "Hapus",
                                 onClick = onDeleteClick,
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.weight(1f)
@@ -112,7 +112,7 @@ fun NoteActionSheet(
                             Spacer(modifier = Modifier.width(16.dp))
                             ActionButton(
                                 icon = Icons.Default.Archive,
-                                text = "Archive",
+                                text = "Arsip",
                                 onClick = onArchiveClick,
                                 modifier = Modifier.weight(1f)
                             )
@@ -121,14 +121,14 @@ fun NoteActionSheet(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             ActionButton(
                                 icon = Icons.Default.Share,
-                                text = "Share",
+                                text = "Bagikan",
                                 onClick = onShareClick,
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             ActionButton(
                                 icon = Icons.Default.ContentCopy,
-                                text = "Duplicate",
+                                text = "Duplikat",
                                 onClick = onDuplicateClick,
                                 modifier = Modifier.weight(1f)
                             )
@@ -137,14 +137,14 @@ fun NoteActionSheet(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             ActionButton(
                                 icon = Icons.Default.Description,
-                                text = "Export",
+                                text = "Ekspor",
                                 onClick = onExportClick,
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             ActionButton(
                                 icon = Icons.AutoMirrored.Filled.Assignment,
-                                text = "Copy",
+                                text = "Salin",
                                 onClick = onCopyClick,
                                 modifier = Modifier.weight(1f)
                             )
@@ -153,7 +153,7 @@ fun NoteActionSheet(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             ActionButton(
                                 icon = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                                text = if (isPinned) "Unpin" else "Pin",
+                                text = if (isPinned) "Lepas Semat" else "Semat",
                                 onClick = onPinClick,
                                 isActive = isPinned,
                                 modifier = Modifier.weight(1f)
@@ -161,7 +161,7 @@ fun NoteActionSheet(
                             Spacer(modifier = Modifier.width(16.dp))
                             ActionButton(
                                 icon = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                                text = if (isLocked) "Unlock" else "Lock",
+                                text = if (isLocked) "Buka Kunci" else "Kunci",
                                 onClick = onLockClick,
                                 isActive = isLocked,
                                 modifier = Modifier.weight(1f)

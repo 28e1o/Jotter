@@ -56,6 +56,8 @@ sealed interface AppRoutes {
     @Serializable
     data class NoteDetail(
         val noteId: Int = -1,
-        val category: String? = null
+        val category: String? = null,
+        val templateTitle: String? = null,
+        val templateContent: String? = null
     ) : AppRoutes
 }

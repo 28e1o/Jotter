@@ -94,7 +94,7 @@ fun SettingsScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = "Pengaturan",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -114,7 +114,7 @@ fun SettingsScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -139,8 +139,8 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.ColorLens,
-                        title = "Appearance",
-                        subtitle = "Look & feel",
+                        title = "Tampilan",
+                        subtitle = "Lihat & rasa",
                         onClick = onAppearanceClick
                     )
 
@@ -148,8 +148,8 @@ fun SettingsScreen(
 
                     SettingsItemArrow(
                         icon = Icons.Default.Dashboard,
-                        title = "Miscellaneous",
-                        subtitle = "Tags, archive & trash",
+                        title = "Lain-lain",
+                        subtitle = "Tag, arsip & sampah",
                         onClick = onMiscellaneousClick
                     )
                 }
@@ -159,8 +159,8 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.Security,
-                        title = "Security",
-                        subtitle = "Lock notes, prevent screenshots",
+                        title = "Keamanan",
+                        subtitle = "Kunci catatan, cegah tangkapan layar",
                         onClick = onSecurityClick
                     )
 
@@ -168,8 +168,8 @@ fun SettingsScreen(
 
                     SettingsItemArrow(
                         icon = Icons.Default.Storage,
-                        title = "Data management",
-                        subtitle = "Manage your data",
+                        title = "Manajemen data",
+                        subtitle = "Kelola data Anda",
                         onClick = onDataManagementClick
                     )
                 }
@@ -179,8 +179,8 @@ fun SettingsScreen(
                 SettingsGroup {
                     SettingsItemArrow(
                         icon = Icons.Default.PrivacyTip,
-                        title = "Privacy policy",
-                        subtitle = "How I handle your data",
+                        title = "Kebijakan privasi",
+                        subtitle = "Cara saya menangani data Anda",
                         onClick = onPrivacyPolicyClick
                     )
 
@@ -188,8 +188,8 @@ fun SettingsScreen(
 
                     SettingsItemArrow(
                         icon = Icons.Default.Info,
-                        title = "About",
-                        subtitle = "Info & support",
+                        title = "Tentang",
+                        subtitle = "Info & dukungan",
                         onClick = onAboutClick
                     )
                 }

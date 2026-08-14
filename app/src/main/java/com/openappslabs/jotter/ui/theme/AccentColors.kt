@@ -14,22 +14,20 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.openappslabs.jotter.data.repository
+package com.openappslabs.jotter.ui.theme
 
-import com.openappslabs.jotter.data.model.Category
-import kotlinx.coroutines.flow.Flow
+data class AccentPreset(
+    val name: String,
+    val hex: String
+)
 
-interface CategoryRepository {
-
-    fun getAllCategories(): Flow<List<Category>>
-
-    suspend fun insertCategory(name: String)
-
-    suspend fun renameCategory(oldName: String, newName: String)
-
-    suspend fun setCategoryColor(name: String, color: String?)
-
-    suspend fun deleteCategoryByName(name: String)
-
-    suspend fun clearCategoryReferences(categoryName: String)
-}
+val AccentPresets = listOf(
+    AccentPreset("Biru", "#1E88E5"),
+    AccentPreset("Hijau", "#43A047"),
+    AccentPreset("Ungu", "#8E24AA"),
+    AccentPreset("Oranye", "#FB8C00"),
+    AccentPreset("Merah", "#E53935"),
+    AccentPreset("Merah Muda", "#D81B60"),
+    AccentPreset("Teal", "#00897B"),
+    AccentPreset("Biru Laut", "#3949AB")
+)

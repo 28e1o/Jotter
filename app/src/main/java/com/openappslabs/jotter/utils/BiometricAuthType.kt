@@ -25,8 +25,8 @@ enum class BiometricAuthType(val authenticators: Int) {
 
     val isAvailable: Boolean get() = this != NONE
     val label: String get() = when (this) {
-        NONE -> "None"
-        BIOMETRIC -> "Biometric"
-        DEVICE_CREDENTIAL -> "Device Credential"
+        NONE -> "Tidak Ada"
+        BIOMETRIC -> "Biometrik"
+        DEVICE_CREDENTIAL -> "Kredensial Perangkat"
     }
 }

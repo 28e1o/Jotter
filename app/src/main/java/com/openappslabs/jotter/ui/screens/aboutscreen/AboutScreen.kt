@@ -37,12 +37,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,6 +58,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +71,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.openappslabs.jotter.BuildConfig
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import java.time.Year
@@ -74,15 +81,17 @@ import com.openappslabs.jotter.ui.components.AboutMeCard
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
+    viewModel: AboutScreenViewModel = hiltViewModel()
 ) {
     val haptics = rememberJotterHaptics()
+    val stats by viewModel.stats.collectAsState()
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "About",
+                        text = "Tentang",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -102,7 +111,7 @@ fun AboutScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -124,13 +133,14 @@ fun AboutScreen(
                 .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AboutContent()
+            AboutContent(stats = stats)
         }
     }
 }
 
 @Composable
 private fun AboutContent(
+    stats: WritingStats,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -149,7 +159,41 @@ private fun AboutContent(
         AboutMeCard()
         CardSection {
             InfoRow(
-                label = "APP",
+                label = "TOTAL CATATAN",
+                value = stats.totalNotes.toString(),
+                icon = Icons.Default.Edit,
+                showChevron = false,
+                onClick = { }
+            )
+            TinyGap()
+            InfoRow(
+                label = "TOTAL KATA",
+                value = stats.totalWords.toString(),
+                icon = Icons.Default.Article,
+                showChevron = false,
+                onClick = { }
+            )
+            TinyGap()
+            InfoRow(
+                label = "TOTAL KARAKTER",
+                value = stats.totalCharacters.toString(),
+                icon = Icons.Default.TextFields,
+                showChevron = false,
+                onClick = { }
+            )
+            TinyGap()
+            InfoRow(
+                label = "RANTAI HARI",
+                value = if (stats.streakDays > 0) "${stats.streakDays} hari" else "Belum ada",
+                icon = Icons.Default.LocalFireDepartment,
+                showChevron = false,
+                onClick = { }
+            )
+        }
+
+        CardSection {
+            InfoRow(
+                label = "APLIKASI",
                 value = "Jotter",
                 icon = Icons.Default.Code,
                 showChevron = false,
@@ -157,7 +201,7 @@ private fun AboutContent(
             )
             TinyGap()
             InfoRow(
-                label = "VERSION",
+                label = "VERSI",
                 value = appVersion,
                 icon = Icons.Default.Info,
                 showChevron = false,
@@ -167,14 +211,14 @@ private fun AboutContent(
 
         CardSection {
             InfoRow(
-                label = "ORGANIZATION",
+                label = "ORGANISASI",
                 value = "Open Apps Labs",
                 icon = Icons.Default.Person,
                 onClick = openGithub
             )
             TinyGap()
             InfoRow(
-                label = "SOURCE CODE",
+                label = "KODE SUMBER",
                 value = "Jotter",
                 icon = Icons.Default.Code,
                 onClick = openSource
@@ -183,14 +227,14 @@ private fun AboutContent(
 
         CardSection {
             InfoRow(
-                label = "SUPPORT",
+                label = "DUKUNGAN",
                 value = "openappslabs@gmail.com",
                 icon = Icons.Default.Email,
                 onClick = openEmail
             )
             TinyGap()
             InfoRow(
-                label = "LICENSE",
+                label = "LISENSI",
                 value = "GNU GPL v3",
                 icon = Icons.Default.Gavel,
                 onClick = openLicense
@@ -199,7 +243,7 @@ private fun AboutContent(
 
         CardSection {
             InfoRow(
-                label = "MADE WITH LOVE",
+                label = "DIBUAT DENGAN CINTA",
                 value = copyrightText,
                 icon = Icons.Default.Favorite,
                 iconTint = Color.Red,

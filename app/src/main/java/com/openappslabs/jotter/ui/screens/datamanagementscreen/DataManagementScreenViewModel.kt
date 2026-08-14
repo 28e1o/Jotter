@@ -117,7 +117,7 @@ class DataManagementScreenViewModel @Inject constructor(
 
             } catch (e: Exception) {
                 _internalUiState.update {
-                    it.copy(isImportInProgress = false, lastImportSuccess = false, errorMessage = "Invalid or Corrupted Backup File")
+                    it.copy(isImportInProgress = false, lastImportSuccess = false, errorMessage = "File Cadangan Tidak Valid atau Rusak")
                 }
             }
         }

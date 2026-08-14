@@ -93,7 +93,7 @@ fun ArchiveScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Archive",
+                        text = "Arsip",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -111,7 +111,7 @@ fun ArchiveScreen(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
-                                contentDescription = "Back",
+                                contentDescription = "Kembali",
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -132,7 +132,7 @@ fun ArchiveScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Restore,
-                                    contentDescription = "Restore All",
+                                    contentDescription = "Pulihkan Semua",
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
                                 )
@@ -189,10 +189,10 @@ fun ArchiveScreen(
                                     if (activity != null) {
                                         BiometricAuthUtil.authenticate(
                                             activity = activity,
-                                            title = "Unlock Note",
-                                            subtitle = "Authenticate to view this locked note",
+                                            title = "Buka Kunci Catatan",
+                                            subtitle = "Autentikasi untuk melihat catatan terkunci ini",
                                             onSuccess = { onNoteClick(note.id) },
-                                            onError = { Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show() }
+                                            onError = { Toast.makeText(context, "Autentikasi gagal", Toast.LENGTH_SHORT).show() }
                                         )
                                     } else {
                                         onNoteClick(note.id)
@@ -231,7 +231,7 @@ private fun EmptyArchiveContent() {
     ) {
         Icon(
             imageVector = Icons.Default.Archive,
-            contentDescription = "Archive Icon",
+            contentDescription = "Ikon Arsip",
             modifier = Modifier.size(72.dp),
             tint = MaterialTheme.colorScheme.surfaceContainerHigh
         )
@@ -239,7 +239,7 @@ private fun EmptyArchiveContent() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Your Archive is Empty",
+            text = "Arsip Anda Kosong",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -248,7 +248,7 @@ private fun EmptyArchiveContent() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Notes you archive will appear here until they are restored or permanently deleted.",
+            text = "Catatan yang Anda arsipkan akan muncul di sini sampai dipulihkan atau dihapus permanen.",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)

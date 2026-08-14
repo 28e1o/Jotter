@@ -78,7 +78,7 @@ fun DeleteCategoryDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Delete Category?",
+                    text = "Hapus Kategori?",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -87,7 +87,7 @@ fun DeleteCategoryDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Are you sure you want to delete \"$categoryName\"? Notes with this category will become uncategorized.",
+                    text = "Anda yakin ingin menghapus \"$categoryName\"? Catatan dengan kategori ini akan menjadi tanpa kategori.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -107,7 +107,7 @@ fun DeleteCategoryDialog(
                     ),
                     elevation = null
                 ) {
-                    Text("Delete", fontWeight = FontWeight.SemiBold)
+                    Text("Hapus", fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -124,7 +124,7 @@ fun DeleteCategoryDialog(
                     ),
                     elevation = null
                 ) {
-                    Text("Cancel", fontWeight = FontWeight.SemiBold)
+                    Text("Batal", fontWeight = FontWeight.SemiBold)
                 }
             }
         }
