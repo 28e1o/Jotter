@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.Bucket
+import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.CategorySlice
 import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.Period
 import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.StatsUiState
 import com.openappslabs.jotter.utils.NoteUtils
@@ -275,7 +277,7 @@ private fun StatCard(
 
 @Composable
 private fun BarChart(
-    buckets: List<StatsUiState.Bucket>,
+    buckets: List<Bucket>,
     modifier: Modifier = Modifier
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -332,7 +334,7 @@ private fun BarChart(
 
 @Composable
 private fun DonutChart(
-    slices: List<StatsUiState.CategorySlice>,
+    slices: List<CategorySlice>,
     modifier: Modifier = Modifier
 ) {
     val total = slices.sumOf { it.count }
