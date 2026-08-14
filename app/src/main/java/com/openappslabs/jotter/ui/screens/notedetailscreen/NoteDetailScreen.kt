@@ -171,17 +171,20 @@ fun NoteDetailScreen(
     val primaryColor = MaterialTheme.colorScheme.primary
 
     val titleStyle = remember(onSurfaceColor, userPrefs.fontSizeScale) {
+        val size = (30f * userPrefs.fontSizeScale).coerceAtLeast(14f)
         TextStyle(
-            fontSize = (30.sp * userPrefs.fontSizeScale).coerceAtLeast(14.sp),
+            fontSize = size.sp,
             fontWeight = FontWeight.Bold,
             color = onSurfaceColor
         )
     }
 
     val contentStyle = remember(onSurfaceColor, userPrefs.fontSizeScale, userPrefs.lineSpacingScale) {
+        val size = (18f * userPrefs.fontSizeScale).coerceAtLeast(12f)
+        val lineHeight = (28f * userPrefs.lineSpacingScale).coerceAtLeast(18f)
         TextStyle(
-            fontSize = (18.sp * userPrefs.fontSizeScale).coerceAtLeast(12.sp),
-            lineHeight = (28.sp * userPrefs.lineSpacingScale).coerceAtLeast(18.sp),
+            fontSize = size.sp,
+            lineHeight = lineHeight.sp,
             fontWeight = FontWeight.Normal,
             color = onSurfaceColor.copy(alpha = 0.85f)
         )

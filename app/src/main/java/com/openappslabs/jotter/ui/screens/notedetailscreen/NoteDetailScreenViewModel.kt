@@ -233,7 +233,7 @@ class NoteDetailViewModel @Inject constructor(
     }
 
     fun toggleChecklist(line: Int, checked: Boolean) {
-        val lines = _uiState.value.content.split("\n")
+        val lines = _uiState.value.content.split("\n").toMutableList()
         if (line !in lines.indices) return
         val old = lines[line]
         val updated = if (checked) {

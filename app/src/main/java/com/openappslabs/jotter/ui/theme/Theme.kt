@@ -121,46 +121,57 @@ private fun contrastOn(color: Color): Color {
 
 private fun accentColorScheme(accent: Color, isDarkTheme: Boolean): ColorScheme {
     val base = if (isDarkTheme) darkColorScheme() else lightColorScheme()
-    val hsv = FloatArray(3)
-    ColorUtils.colorToHSV(accent.toArgb(), hsv)
-    val hue = hsv[0]
-    val sat = hsv[1]
 
-    val primaryContainer = Color.lerp(
+    val r = accent.red
+    val g = accent.green
+    val b = accent.blue
+    val max = maxOf(r, g, b)
+    val min = minOf(r, g, b)
+    val delta = max - min
+
+    val hue = if (delta == 0f) {
+        0f
+    } else when (max) {
+        r -> 60f * (((g - b) / delta) % 6f)
+        g -> 60f * (((b - r) / delta) + 2f)
+        else -> 60f * (((r - g) / delta) + 4f)
+    }
+    val sat = if (max == 0f) 0f else delta / max
+
+    val primaryContainer = lerp(
         accent,
         if (isDarkTheme) Color.Black else Color.White,
         if (isDarkTheme) 0.55f else 0.78f
     )
     val onPrimaryContainer = if (isDarkTheme) {
-        Color.lerp(accent, Color.White, 0.85f)
+        lerp(accent, Color.White, 0.85f)
     } else {
-        Color.lerp(accent, Color.Black, 0.35f)
+        lerp(accent, Color.Black, 0.35f)
     }
 
     val secondary = hsvColor(hue + 150f, sat * 0.55f, if (isDarkTheme) 0.85f else 0.5f)
-    val secondaryContainer = Color.lerp(
+    val secondaryContainer = lerp(
         secondary,
         if (isDarkTheme) Color.Black else Color.White,
         if (isDarkTheme) 0.5f else 0.8f
     )
     val onSecondaryContainer = if (isDarkTheme) {
-        Color.lerp(secondary, Color.White, 0.85f)
+        lerp(secondary, Color.White, 0.85f)
     } else {
-        Color.lerp(secondary, Color.Black, 0.35f)
+        lerp(secondary, Color.Black, 0.35f)
     }
 
     val tertiary = hsvColor(hue - 120f, sat * 0.7f, if (isDarkTheme) 0.85f else 0.5f)
-    val tertiaryContainer = Color.lerp(
+    val tertiaryContainer = lerp(
         tertiary,
         if (isDarkTheme) Color.Black else Color.White,
         if (isDarkTheme) 0.5f else 0.8f
     )
     val onTertiaryContainer = if (isDarkTheme) {
-        Color.lerp(tertiary, Color.White, 0.85f)
+        lerp(tertiary, Color.White, 0.85f)
     } else {
-        Color.lerp(tertiary, Color.Black, 0.35f)
+        lerp(tertiary, Color.Black, 0.35f)
     }
-
     return base.copy(
         primary = accent,
         onPrimary = contrastOn(accent),

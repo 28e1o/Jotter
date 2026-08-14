@@ -201,16 +201,16 @@ private fun buildInline(
             builder.addLink(
                 LinkAnnotation.Clickable(
                     tag = url,
-                    styles = TextLinkStyles(style = linkStyle, hoverStyle = linkStyle, pressedStyle = linkStyle),
-                    linkInteractionListener = { annotation -> onLinkClick(annotation.url) }
+                    styles = TextLinkStyles(style = linkStyle, hoveredStyle = linkStyle, pressedStyle = linkStyle),
+                    linkInteractionListener = { annotation -> onLinkClick(annotation.tag) }
                 ),
                 builder.length - segment.length,
                 builder.length
             )
         } else {
-            builder.withStyle(spanStyle) {
-                append(segment)
-            }
+            builder.pushStyle(spanStyle)
+            builder.append(segment)
+            builder.pop()
         }
     }
 
