@@ -22,6 +22,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.GenericFontFamily
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -41,10 +42,10 @@ enum class RichFont(val id: String, val label: String) {
             Serif -> FontFamily.Serif
             Mono -> FontFamily.Monospace
             Cursive -> FontFamily.Cursive
-            Condensed -> FontFamily.GenericFontFamily("sans-serif-condensed")
-            Light -> FontFamily.GenericFontFamily("sans-serif-light")
-            Medium -> FontFamily.GenericFontFamily("sans-serif-medium")
-            Black -> FontFamily.GenericFontFamily("sans-serif-black")
+            Condensed -> GenericFontFamily("sans-serif-condensed", "sans-serif-condensed")
+            Light -> GenericFontFamily("sans-serif-light", "sans-serif-light")
+            Medium -> GenericFontFamily("sans-serif-medium", "sans-serif-medium")
+            Black -> GenericFontFamily("sans-serif-black", "sans-serif-black")
         }
 
     companion object {
