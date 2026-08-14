@@ -20,28 +20,47 @@ import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.FullscreenExit
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.openappslabs.jotter.ui.components.SortSheet
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,6 +71,7 @@ import com.openappslabs.jotter.ui.components.FAB
 import com.openappslabs.jotter.ui.components.NoteCard
 import com.openappslabs.jotter.ui.components.QuickActionSheet
 import com.openappslabs.jotter.ui.components.SearchBar
+import com.openappslabs.jotter.ui.screens.statsscreen.StatsScreen
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import com.openappslabs.jotter.utils.BiometricAuthUtil
 import com.openappslabs.jotter.utils.NoteTemplate
@@ -77,6 +97,7 @@ fun HomeScreen(
 
     var showSortSheet by remember { mutableStateOf(false) }
     var showQuickActionSheet by remember { mutableStateOf(false) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val sortSheetState = rememberModalBottomSheetState()
     val dateFormatter = remember(uiState.dateFormat, uiState.isGridView, locale) {
         val format = if (!uiState.isGridView) {
@@ -98,22 +119,77 @@ fun HomeScreen(
 
     Scaffold(
         floatingActionButton = {
-            FAB(
-                onClick = {
-                    val category = if (uiState.selectedCategory == "All") null else uiState.selectedCategory
-                    onAddNoteClick(category)
-                },
-                onLongClick = {
-                    showQuickActionSheet = true
-                }
-            )
+            if (selectedTab == 0) {
+                FAB(
+                    onClick = {
+                        val category = if (uiState.selectedCategory == "All") null else uiState.selectedCategory
+                        onAddNoteClick(category)
+                    },
+                    onLongClick = {
+                        showQuickActionSheet = true
+                    }
+                )
+            }
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                    label = { Text("Catatan") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    icon = { Icon(Icons.Filled.BarChart, contentDescription = null) },
+                    label = { Text("Statistik") }
+                )
+            }
         }
     ) { innerPadding ->
+        if (selectedTab == 1) {
+            StatsScreen(modifier = Modifier.padding(innerPadding))
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            if (uiState.isHomeFocusMode) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Mode Fokus",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Surface(
+                        onClick = {
+                            haptics.tick()
+                            viewModel.updateHomeFocusMode(false)
+                        },
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Rounded.FullscreenExit,
+                                contentDescription = "Keluar mode fokus",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+            }
             if (!uiState.isHomeFocusMode) {
                 SearchBar(
                     query = uiState.searchQuery,
@@ -197,6 +273,7 @@ fun HomeScreen(
                     )
                 }
             }
+        }
         }
     }
 

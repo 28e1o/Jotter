@@ -37,16 +37,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -58,7 +54,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -71,7 +66,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.openappslabs.jotter.BuildConfig
 import com.openappslabs.jotter.ui.theme.rememberJotterHaptics
 import java.time.Year
@@ -80,11 +74,9 @@ import com.openappslabs.jotter.ui.components.AboutMeCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    onBackClick: () -> Unit,
-    viewModel: AboutScreenViewModel = hiltViewModel()
+    onBackClick: () -> Unit
 ) {
     val haptics = rememberJotterHaptics()
-    val stats by viewModel.stats.collectAsState()
 
     Scaffold(
         topBar = {
@@ -133,14 +125,13 @@ fun AboutScreen(
                 .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AboutContent(stats = stats)
+            AboutContent()
         }
     }
 }
 
 @Composable
 private fun AboutContent(
-    stats: WritingStats,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -157,39 +148,6 @@ private fun AboutContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         AboutMeCard()
-        CardSection {
-            InfoRow(
-                label = "TOTAL CATATAN",
-                value = stats.totalNotes.toString(),
-                icon = Icons.Default.Edit,
-                showChevron = false,
-                onClick = { }
-            )
-            TinyGap()
-            InfoRow(
-                label = "TOTAL KATA",
-                value = stats.totalWords.toString(),
-                icon = Icons.Default.Article,
-                showChevron = false,
-                onClick = { }
-            )
-            TinyGap()
-            InfoRow(
-                label = "TOTAL KARAKTER",
-                value = stats.totalCharacters.toString(),
-                icon = Icons.Default.TextFields,
-                showChevron = false,
-                onClick = { }
-            )
-            TinyGap()
-            InfoRow(
-                label = "RANTAI HARI",
-                value = if (stats.streakDays > 0) "${stats.streakDays} hari" else "Belum ada",
-                icon = Icons.Default.LocalFireDepartment,
-                showChevron = false,
-                onClick = { }
-            )
-        }
 
         CardSection {
             InfoRow(

@@ -183,4 +183,10 @@ class HomeScreenViewModel @Inject constructor(
 
     fun onNoteClicked(noteId: Int) {
     }
+
+    fun updateHomeFocusMode(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setHomeFocusMode(enabled)
+        }
+    }
 }
