@@ -202,7 +202,7 @@ private fun buildInline(
                 LinkAnnotation.Clickable(
                     tag = url,
                     styles = TextLinkStyles(style = linkStyle, hoveredStyle = linkStyle, pressedStyle = linkStyle),
-                    linkInteractionListener = { annotation -> onLinkClick(annotation.tag) }
+                    linkInteractionListener = { annotation -> onLinkClick((annotation as LinkAnnotation.Clickable).tag) }
                 ),
                 builder.length - segment.length,
                 builder.length
