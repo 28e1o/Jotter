@@ -23,7 +23,7 @@ import com.openappslabs.jotter.data.model.Note
 
 @Database(
     entities = [Note::class, Category::class],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 abstract class JotterDatabase : RoomDatabase() {

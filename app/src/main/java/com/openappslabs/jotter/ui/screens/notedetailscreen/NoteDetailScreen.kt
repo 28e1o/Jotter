@@ -24,6 +24,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,6 +54,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.rounded.Fullscreen
 import androidx.compose.material.icons.rounded.FullscreenExit
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -122,6 +124,7 @@ fun NoteDetailScreen(
     val userPrefs by viewModel.userPreferences.collectAsStateWithLifecycle()
     val contentEditor by viewModel.contentEditor.collectAsStateWithLifecycle()
     val activeFormat by viewModel.activeFormat.collectAsStateWithLifecycle()
+    val sessionElapsed by viewModel.sessionElapsed.collectAsStateWithLifecycle()
     var showDiscardDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
@@ -459,6 +462,27 @@ fun NoteDetailScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+                if (!isViewMode && !isArchivedOrTrashed) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Schedule,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = NoteUtils.formatDuration(sessionElapsed),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
                 if (isViewMode || isArchivedOrTrashed) {
                     if (uiState.contentAnnotations.isBlank()) {
                         MarkdownContent(

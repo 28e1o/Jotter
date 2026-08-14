@@ -19,14 +19,17 @@ package com.openappslabs.jotter.ui.screens.statsscreen
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.openappslabs.jotter.data.model.Note
 import com.openappslabs.jotter.data.repository.NotesRepository
+import com.openappslabs.jotter.data.repository.UserPreferences
+import com.openappslabs.jotter.data.repository.UserPreferencesRepository
 import com.openappslabs.jotter.utils.NoteUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -36,7 +39,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val notesRepository: NotesRepository
+    private val notesRepository: NotesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     enum class Period(val days: Int, val label: String) {
@@ -50,115 +54,143 @@ class StatsViewModel @Inject constructor(
     data class Bucket(val label: String, val words: Int)
 
     @Immutable
+    data class CategorySlice(val label: String, val count: Int)
+
+    @Immutable
     data class StatsUiState(
         val period: Period = Period.WEEK,
         val totalWords: Int = 0,
+        val totalCharacters: Int = 0,
         val totalNotes: Int = 0,
         val avgWordsPerDay: Int = 0,
         val streakDays: Int = 0,
-        val buckets: List<Bucket> = emptyList()
+        val totalTimeMs: Long = 0,
+        val longestNoteTitle: String = "",
+        val longestNoteTimeMs: Long = 0,
+        val buckets: List<Bucket> = emptyList(),
+        val categorySlices: List<CategorySlice> = emptyList()
     )
 
-    private val _uiState = MutableStateFlow(StatsUiState())
-    val uiState: StateFlow<StatsUiState> = _uiState.asStateFlow()
+    private val _period = MutableStateFlow(Period.WEEK)
 
-    init {
-        refresh()
-    }
+    val uiState: StateFlow<StatsUiState> = combine(
+        notesRepository.getAllNotesIncludingArchived(),
+        userPreferencesRepository.userPreferencesFlow,
+        _period
+    ) { notes, prefs, period ->
+        computeStats(notes, prefs, period)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = StatsUiState()
+    )
 
     fun setPeriod(period: Period) {
-        _uiState.update { it.copy(period = period) }
-        refresh()
+        _period.value = period
     }
 
-    private fun refresh() {
-        viewModelScope.launch {
-            val period = _uiState.value.period
-            val notes = notesRepository.getAllNotesSync().filter { !it.isTrashed }
-            val zone = ZoneId.systemDefault()
-            val now = LocalDate.now()
+    private fun computeStats(
+        notes: List<Note>,
+        prefs: UserPreferences,
+        period: Period
+    ): StatsUiState {
+        val zone = ZoneId.systemDefault()
+        val now = LocalDate.now()
 
-            var totalWords = 0
-            val wordsByDay = HashMap<LocalDate, Int>()
-            val days = mutableSetOf<LocalDate>()
+        var totalWords = 0
+        var totalCharacters = 0
+        var totalTimeMs = 0L
+        var longestNote: Note? = null
+        val wordsByDay = HashMap<LocalDate, Int>()
 
-            notes.forEach { note ->
-                val words = NoteUtils.countWords(note.title) + NoteUtils.countWords(note.content)
-                totalWords += words
-                val day = LocalDate.ofInstant(Instant.ofEpochMilli(note.createdTime), zone)
-                wordsByDay[day] = (wordsByDay[day] ?: 0) + words
-                days.add(day)
-                days.add(LocalDate.ofInstant(Instant.ofEpochMilli(note.updatedTime), zone))
+        notes.forEach { note ->
+            val words = NoteUtils.countWords(note.title) + NoteUtils.countWords(note.content)
+            val chars = NoteUtils.countCharacters(note.title) + NoteUtils.countCharacters(note.content)
+            totalWords += words
+            totalCharacters += chars
+            totalTimeMs += note.totalTimeMs
+            if (longestNote == null || note.totalTimeMs > longestNote.totalTimeMs) {
+                longestNote = note
             }
+            val day = LocalDate.ofInstant(Instant.ofEpochMilli(note.createdTime), zone)
+            wordsByDay[day] = (wordsByDay[day] ?: 0) + words
+        }
 
-            val buckets = when (period) {
-                Period.DAY -> {
-                    val todayStart = now.atStartOfDay(zone).toInstant().toEpochMilli()
-                    val todayEnd = now.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
-                    val hourly = IntArray(24)
-                    notes.forEach { note ->
-                        val created = note.createdTime
-                        if (created >= todayStart && created < todayEnd) {
-                            val words = NoteUtils.countWords(note.title) + NoteUtils.countWords(note.content)
-                            val hour = Instant.ofEpochMilli(created).atZone(zone).hour
-                            hourly[hour] += words
-                        }
-                    }
-                    hourly.mapIndexed { hour, words ->
-                        Bucket(hour.toString().padStart(2, '0'), words)
+        val buckets = when (period) {
+            Period.DAY -> {
+                val todayStart = now.atStartOfDay(zone).toInstant().toEpochMilli()
+                val todayEnd = now.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+                val hourly = IntArray(24)
+                notes.forEach { note ->
+                    val created = note.createdTime
+                    if (created >= todayStart && created < todayEnd) {
+                        val words = NoteUtils.countWords(note.title) + NoteUtils.countWords(note.content)
+                        val hour = Instant.ofEpochMilli(created).atZone(zone).hour
+                        hourly[hour] += words
                     }
                 }
-                Period.WEEK -> (6 downTo 0).map { offset ->
-                    val day = now.minusDays(offset.toLong())
-                    Bucket(
-                        day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                        wordsByDay[day] ?: 0
+                hourly.mapIndexed { hour, words ->
+                    Bucket(hour.toString().padStart(2, '0'), words)
+                }
+            }
+            Period.WEEK -> (6 downTo 0).map { offset ->
+                val day = now.minusDays(offset.toLong())
+                Bucket(
+                    day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                    wordsByDay[day] ?: 0
+                )
+            }
+            Period.MONTH -> (29 downTo 0).map { offset ->
+                val day = now.minusDays(offset.toLong())
+                Bucket(day.dayOfMonth.toString(), wordsByDay[day] ?: 0)
+            }
+            Period.YEAR -> {
+                val months = ArrayList<Bucket>()
+                for (offset in 11 downTo 0) {
+                    val monthStart = now.minusMonths(offset.toLong()).withDayOfMonth(1)
+                    val words = (0 until monthStart.lengthOfMonth()).sumOf { dayOffset ->
+                        wordsByDay[monthStart.plusDays(dayOffset.toLong())] ?: 0
+                    }
+                    months.add(
+                        Bucket(
+                            monthStart.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                            words
+                        )
                     )
                 }
-                Period.MONTH -> (29 downTo 0).map { offset ->
-                    val day = now.minusDays(offset.toLong())
-                    Bucket(day.dayOfMonth.toString(), wordsByDay[day] ?: 0)
-                }
-                Period.YEAR -> {
-                    val months = ArrayList<Bucket>()
-                    for (offset in 11 downTo 0) {
-                        val monthStart = now.minusMonths(offset.toLong()).withDayOfMonth(1)
-                        val words = (0 until monthStart.lengthOfMonth()).sumOf { dayOffset ->
-                            wordsByDay[monthStart.plusDays(dayOffset.toLong())] ?: 0
-                        }
-                        months.add(
-                            Bucket(
-                                monthStart.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                                words
-                            )
-                        )
-                    }
-                    months
-                }
+                months
             }
-
-            val streak = currentStreak(days)
-            val avg = totalWords / period.days.coerceAtLeast(1)
-
-            _uiState.value = StatsUiState(
-                period = period,
-                totalWords = totalWords,
-                totalNotes = notes.size,
-                avgWordsPerDay = avg,
-                streakDays = streak,
-                buckets = buckets
-            )
         }
-    }
 
-    private fun currentStreak(days: Set<LocalDate>): Int {
-        var streak = 0
-        var cursor = LocalDate.now()
-        if (cursor !in days) cursor = cursor.minusDays(1)
-        while (cursor in days) {
-            streak++
-            cursor = cursor.minusDays(1)
+        val lastActive = runCatching { LocalDate.parse(prefs.lastActiveDate) }.getOrNull()
+        val streak = if (lastActive == null) {
+            0
+        } else if (lastActive == now || lastActive == now.minusDays(1)) {
+            prefs.streakDays
+        } else {
+            0
         }
-        return streak
+
+        val activeDays = wordsByDay.values.count { it > 0 }
+        val avg = if (activeDays > 0) totalWords / activeDays else 0
+
+        val categorySlices = notes
+            .groupBy { it.category.ifBlank { "Tanpa Kategori" } }
+            .map { (label, list) -> CategorySlice(label, list.size) }
+            .sortedByDescending { it.count }
+
+        return StatsUiState(
+            period = period,
+            totalWords = totalWords,
+            totalCharacters = totalCharacters,
+            totalNotes = notes.size,
+            avgWordsPerDay = avg,
+            streakDays = streak,
+            totalTimeMs = totalTimeMs,
+            longestNoteTitle = longestNote?.title?.ifBlank { "Tanpa Judul" } ?: "-",
+            longestNoteTimeMs = longestNote?.totalTimeMs ?: 0L,
+            buckets = buckets,
+            categorySlices = categorySlices
+        )
     }
 }

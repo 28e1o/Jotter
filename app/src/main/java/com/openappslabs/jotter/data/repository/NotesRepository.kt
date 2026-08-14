@@ -21,11 +21,13 @@ import com.openappslabs.jotter.data.model.Note
 import kotlinx.coroutines.flow.Flow
 interface NotesRepository {
     fun getAllNotes(): Flow<List<Note>>
+    fun getAllNotesIncludingArchived(): Flow<List<Note>>
     fun getArchivedNotes(): Flow<List<Note>>
     fun getTrashedNotes(): Flow<List<Note>>
     fun getCategories(): Flow<List<String>>
     suspend fun getNoteById(noteId: Int): Note?
     suspend fun getAllNotesSync(): List<Note>
+    suspend fun updateTotalTime(noteId: Int, totalTimeMs: Long)
     suspend fun addNote(note: Note): Long
     suspend fun updateNote(note: Note)
 

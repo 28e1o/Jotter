@@ -30,6 +30,12 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE isArchived = 0 AND isTrashed = 0 ORDER BY isPinned DESC, updatedTime DESC")
     fun getAllNotes(): Flow<List<Note>>
 
+    @Query("SELECT * FROM notes WHERE isTrashed = 0 ORDER BY updatedTime DESC")
+    fun getAllNotesIncludingArchived(): Flow<List<Note>>
+
+    @Query("UPDATE notes SET totalTimeMs = :totalTimeMs WHERE id = :noteId")
+    suspend fun updateTotalTime(noteId: Int, totalTimeMs: Long)
+
     @Query("SELECT * FROM notes WHERE id = :noteId")
     suspend fun getNoteById(noteId: Int): Note?
 

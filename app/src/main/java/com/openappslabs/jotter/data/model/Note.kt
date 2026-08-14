@@ -40,6 +40,8 @@ data class Note(
     val content: String = "",
     @ColumnInfo(defaultValue = "''")
     val contentAnnotations: String = "",
+    @ColumnInfo(defaultValue = "0")
+    val totalTimeMs: Long = 0,
     val category: String = "",
     val createdTime: Long = System.currentTimeMillis(),
     val updatedTime: Long = System.currentTimeMillis(),

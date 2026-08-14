@@ -73,6 +73,12 @@ abstract class DatabaseModule {
             }
         }
 
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `notes` ADD COLUMN `totalTimeMs` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         @Provides
         @Singleton
         fun provideDatabase(@ApplicationContext context: Context): JotterDatabase {
@@ -81,7 +87,7 @@ abstract class DatabaseModule {
                 JotterDatabase::class.java,
                 "jotter_db"
             )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }

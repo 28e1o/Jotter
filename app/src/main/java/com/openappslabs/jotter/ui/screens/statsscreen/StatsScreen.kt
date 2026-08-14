@@ -17,7 +17,9 @@
 package com.openappslabs.jotter.ui.screens.statsscreen
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,19 +27,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -49,6 +55,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.Period
 import com.openappslabs.jotter.ui.screens.statsscreen.StatsViewModel.StatsUiState
+import com.openappslabs.jotter.utils.NoteUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,8 +104,8 @@ fun StatsScreen(
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                label = "Catatan",
-                value = uiState.totalNotes.toString(),
+                label = "Total Karakter",
+                value = uiState.totalCharacters.toString(),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -110,15 +117,66 @@ fun StatsScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                label = "Rata-rata per Hari",
-                value = uiState.avgWordsPerDay.toString(),
+                label = "Catatan",
+                value = uiState.totalNotes.toString(),
                 modifier = Modifier.weight(1f)
             )
             StatCard(
                 label = "Rantai Hari",
-                value = if (uiState.streakDays > 0) "${uiState.streakDays} hari" else "Belum ada",
+                value = if (uiState.streakDays > 0) "${uiState.streakDays} hari" else "0",
                 modifier = Modifier.weight(1f)
             )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            StatCard(
+                label = "Total Waktu",
+                value = NoteUtils.formatDuration(uiState.totalTimeMs),
+                modifier = Modifier.weight(1f)
+            )
+            StatCard(
+                label = "Rata-rata per Hari",
+                value = uiState.avgWordsPerDay.toString(),
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(0.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Naskah Terlama",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = uiState.longestNoteTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = NoteUtils.formatDuration(uiState.longestNoteTimeMs),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,6 +211,30 @@ fun StatsScreen(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(0.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Distribusi per Kategori",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                DonutChart(slices = uiState.categorySlices)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -243,6 +325,91 @@ private fun BarChart(
                         .weight(1f)
                         .padding(horizontal = 1.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DonutChart(
+    slices: List<StatsUiState.CategorySlice>,
+    modifier: Modifier = Modifier
+) {
+    val total = slices.sumOf { it.count }
+    val colors = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.tertiary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.error,
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f),
+        MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+    )
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        if (total <= 0) {
+            Text(
+                text = "Belum ada data",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            return@Column
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Canvas(
+                modifier = Modifier.size(120.dp)
+            ) {
+                var startAngle = -90f
+                slices.forEachIndexed { index, slice ->
+                    val sweep = (slice.count.toFloat() / total) * 360f
+                    drawArc(
+                        color = colors[index % colors.size],
+                        startAngle = startAngle,
+                        sweepAngle = (sweep - 1f).coerceAtLeast(0f),
+                        useCenter = true,
+                        topLeft = Offset.Zero,
+                        size = Size(size.width, size.height)
+                    )
+                    startAngle += sweep
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                slices.forEachIndexed { index, slice ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(colors[index % colors.size])
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = slice.label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = slice.count.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
     }

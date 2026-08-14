@@ -32,6 +32,7 @@ class NotesRepositoryImpl @Inject constructor(
 ) : NotesRepository {
 
     override fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
+    override fun getAllNotesIncludingArchived(): Flow<List<Note>> = noteDao.getAllNotesIncludingArchived()
     override fun getArchivedNotes(): Flow<List<Note>> = noteDao.getArchivedNotes()
     override fun getTrashedNotes(): Flow<List<Note>> = noteDao.getTrashedNotes()
     override suspend fun getNoteById(noteId: Int): Note? = noteDao.getNoteById(noteId)
@@ -91,6 +92,10 @@ class NotesRepositoryImpl @Inject constructor(
     override fun getCategories(): Flow<List<String>> = categoryDao.getAllCategoryNames()
 
     override suspend fun getAllNotesSync(): List<Note> = noteDao.getAllNotesSync()
+
+    override suspend fun updateTotalTime(noteId: Int, totalTimeMs: Long) {
+        noteDao.updateTotalTime(noteId, totalTimeMs)
+    }
 
     override suspend fun getBackupData(): BackupData {
         val notes = noteDao.getAllNotesSync()

@@ -49,6 +49,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,6 +80,7 @@ class NoteDetailViewModel @Inject constructor(
         val title: String = "",
         val content: String = "",
         val contentAnnotations: String = "",
+        val totalTimeMs: Long = 0,
         val category: String = "",
         val isPinned: Boolean = false,
         val isLocked: Boolean = false,
@@ -99,6 +102,45 @@ class NoteDetailViewModel @Inject constructor(
 
     private val _activeFormat = MutableStateFlow(ActiveFormat())
     val activeFormat: StateFlow<ActiveFormat> = _activeFormat.asStateFlow()
+
+    private val _sessionElapsed = MutableStateFlow(0L)
+    val sessionElapsed: StateFlow<Long> = _sessionElapsed.asStateFlow()
+
+    private var sessionBaseMs: Long = 0L
+    private var sessionStartMs: Long = 0L
+    private var timerJob: Job? = null
+
+    private fun startTimer(baseMs: Long) {
+        timerJob?.cancel()
+        sessionBaseMs = baseMs
+        sessionStartMs = System.currentTimeMillis()
+        _sessionElapsed.value = 0L
+        timerJob = viewModelScope.launch {
+            var tick = 0
+            while (true) {
+                delay(1000)
+                tick++
+                _sessionElapsed.value = (System.currentTimeMillis() - sessionStartMs).coerceAtLeast(0L)
+                if (tick % 5 == 0) {
+                    commitSessionTime()
+                }
+            }
+        }
+    }
+
+    private fun currentSessionTotal(): Long {
+        val elapsed = (System.currentTimeMillis() - sessionStartMs).coerceAtLeast(0L)
+        return sessionBaseMs + elapsed
+    }
+
+    private fun commitSessionTime() {
+        val id = uiState.value.id ?: return
+        val total = currentSessionTotal()
+        viewModelScope.launch {
+            notesRepository.updateTotalTime(id, total)
+            userPreferencesRepository.recordActiveDay()
+        }
+    }
 
     private var originalState: UiState? = null
 
@@ -134,6 +176,7 @@ class NoteDetailViewModel @Inject constructor(
             _uiState.update { initialState }
             originalState = initialState
             syncEditorFromState()
+            startTimer(0L)
         }
         observeCategoryCleanup()
         observeNoteUpdates()
@@ -175,6 +218,7 @@ class NoteDetailViewModel @Inject constructor(
                     title = note.title,
                     content = note.content,
                     contentAnnotations = note.contentAnnotations,
+                    totalTimeMs = note.totalTimeMs,
                     category = note.category,
                     isPinned = note.isPinned,
                     isLocked = note.isLocked,
@@ -190,6 +234,7 @@ class NoteDetailViewModel @Inject constructor(
                 originalState = newState
                 clearUndoHistory()
                 syncEditorFromState()
+                startTimer(note.totalTimeMs)
             } else {
                 _uiState.update { it.copy(isLoading = false) }
             }
@@ -205,6 +250,7 @@ class NoteDetailViewModel @Inject constructor(
                     title = currentState.title,
                     content = currentState.content,
                     contentAnnotations = currentState.contentAnnotations,
+                    totalTimeMs = currentSessionTotal(),
                     category = currentState.category,
                     isPinned = currentState.isPinned,
                     isLocked = currentState.isLocked,
@@ -442,6 +488,7 @@ class NoteDetailViewModel @Inject constructor(
                 title = currentState.title,
                 content = currentState.content,
                 contentAnnotations = currentState.contentAnnotations,
+                totalTimeMs = currentSessionTotal(),
                 category = currentState.category,
                 isPinned = currentState.isPinned,
                 isLocked = currentState.isLocked,

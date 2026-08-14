@@ -117,6 +117,10 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
+            LaunchedEffect(Unit) {
+                userPreferencesRepository.recordActiveDay()
+            }
+
             JotterTheme(
                 isDarkTheme = darkTheme,
                 isTrueBlackEnabled = userPreferences?.isTrueBlackEnabled ?: false,

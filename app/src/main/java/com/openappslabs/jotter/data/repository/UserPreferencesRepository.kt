@@ -22,6 +22,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.openappslabs.jotter.ui.components.SortDirection
 import com.openappslabs.jotter.ui.components.SortType
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import java.time.LocalDate
 import javax.inject.Inject
 
 @Immutable
@@ -53,7 +55,9 @@ data class UserPreferences(
     val fontSizeScale: Float = 1f,
     val lineSpacingScale: Float = 1f,
     val accentColor: String = "",
-    val isHomeFocusMode: Boolean = false
+    val isHomeFocusMode: Boolean = false,
+    val streakDays: Int = 0,
+    val lastActiveDate: String = ""
 )
 
 class UserPreferencesRepository @Inject constructor(
@@ -80,6 +84,8 @@ class UserPreferencesRepository @Inject constructor(
         val LINE_SPACING_SCALE = floatPreferencesKey("line_spacing_scale")
         val ACCENT_COLOR = stringPreferencesKey("accent_color")
         val IS_HOME_FOCUS_MODE = booleanPreferencesKey("is_home_focus_mode")
+        val STREAK_DAYS = intPreferencesKey("streak_days")
+        val LAST_ACTIVE_DATE = stringPreferencesKey("last_active_date")
     }
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
         .catch { exception ->
@@ -111,7 +117,9 @@ class UserPreferencesRepository @Inject constructor(
                 fontSizeScale = preferences[Keys.FONT_SIZE_SCALE] ?: 1f,
                 lineSpacingScale = preferences[Keys.LINE_SPACING_SCALE] ?: 1f,
                 accentColor = preferences[Keys.ACCENT_COLOR] ?: "",
-                isHomeFocusMode = preferences[Keys.IS_HOME_FOCUS_MODE] ?: false
+                isHomeFocusMode = preferences[Keys.IS_HOME_FOCUS_MODE] ?: false,
+                streakDays = preferences[Keys.STREAK_DAYS] ?: 0,
+                lastActiveDate = preferences[Keys.LAST_ACTIVE_DATE] ?: ""
             )
         }
         .distinctUntilChanged()
@@ -198,5 +206,21 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setHomeFocusMode(enabled: Boolean) {
         dataStore.edit { it[Keys.IS_HOME_FOCUS_MODE] = enabled }
+    }
+
+    suspend fun recordActiveDay() {
+        dataStore.edit { preferences ->
+            val today = LocalDate.now().toString()
+            val lastActive = preferences[Keys.LAST_ACTIVE_DATE]
+            if (lastActive == today) return@edit
+            val currentStreak = preferences[Keys.STREAK_DAYS] ?: 0
+            val newStreak = if (lastActive == LocalDate.now().minusDays(1).toString()) {
+                currentStreak + 1
+            } else {
+                1
+            }
+            preferences[Keys.LAST_ACTIVE_DATE] = today
+            preferences[Keys.STREAK_DAYS] = newStreak
+        }
     }
 }
