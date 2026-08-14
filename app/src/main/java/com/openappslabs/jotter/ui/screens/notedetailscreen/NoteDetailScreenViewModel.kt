@@ -282,7 +282,7 @@ class NoteDetailViewModel @Inject constructor(
     private fun syncEditorFromState() {
         val state = _uiState.value
         _contentEditor.value = TextFieldValue(
-            annotatedString = buildAnnotated(state.content, decodeSpans(state.contentAnnotations)),
+            annotatedString = buildAnnotated(state.content, decodeSpans(state.contentAnnotations), applyListIndents = true),
             selection = TextRange(state.content.length),
             composition = null
         )
@@ -349,6 +349,7 @@ class NoteDetailViewModel @Inject constructor(
         val textChanged = newText != oldText
 
         var newSpans = decodeSpans(uiState.value.contentAnnotations)
+        var newlineInsertedAt = -1
         if (textChanged) {
             var commonPrefix = 0
             while (commonPrefix < oldText.length && commonPrefix < newText.length &&
@@ -369,19 +370,57 @@ class NoteDetailViewModel @Inject constructor(
             if (newModifiedEnd > commonPrefix) {
                 newSpans = applyFormat(newSpans, commonPrefix, newModifiedEnd, _activeFormat.value)
             }
+            if (oldModifiedEnd == commonPrefix &&
+                newModifiedEnd == commonPrefix + 1 &&
+                newText[commonPrefix] == '\n'
+            ) {
+                newlineInsertedAt = commonPrefix
+            }
         }
 
-        _contentEditor.value = newValue.copy(annotatedString = buildAnnotated(newText, newSpans))
+        var finalText = newText
+        var finalSpans = newSpans
+        var finalSelection = newValue.selection
+        if (newlineInsertedAt >= 0) {
+            val lineStart = finalText.lastIndexOf('\n', newlineInsertedAt - 1) + 1
+            val lineText = finalText.substring(lineStart, newlineInsertedAt)
+            val marker = listContinuationFor(lineText)
+            if (marker != null) {
+                val insertAt = newlineInsertedAt + 1
+                finalText = finalText.substring(0, insertAt) + marker + finalText.substring(insertAt)
+                finalSpans = editSpans(finalSpans, insertAt, insertAt, marker.length)
+                finalSpans = applyFormat(finalSpans, insertAt, insertAt + marker.length, _activeFormat.value)
+                finalSelection = TextRange(insertAt + marker.length)
+            }
+        }
+
+        _contentEditor.value = TextFieldValue(
+            annotatedString = buildAnnotated(finalText, finalSpans, applyListIndents = true),
+            selection = finalSelection,
+            composition = newValue.composition
+        )
         if (textChanged) {
             pushSnapshot()
             _uiState.update {
                 it.copy(
-                    content = newText,
-                    contentAnnotations = encodeSpans(newSpans)
+                    content = finalText,
+                    contentAnnotations = encodeSpans(finalSpans)
                 )
             }
             checkForChanges()
         }
+    }
+
+    private fun listContinuationFor(lineText: String): String? {
+        if (lineText.startsWith("- ")) {
+            return if (lineText.removePrefix("- ").isEmpty()) null else "- "
+        }
+        val num = Regex("^(\\d+)\\. (.*)$").find(lineText)
+        if (num != null) {
+            val n = num.groupValues[1].toIntOrNull() ?: return null
+            return if (num.groupValues[2].isEmpty()) null else "${n + 1}. "
+        }
+        return null
     }
 
     private fun applyActiveFormatToSelection(newFormat: ActiveFormat) {
@@ -394,7 +433,7 @@ class NoteDetailViewModel @Inject constructor(
                 selection.end,
                 newFormat
             )
-            _contentEditor.value = editor.copy(annotatedString = buildAnnotated(editor.text, newSpans))
+            _contentEditor.value = editor.copy(annotatedString = buildAnnotated(editor.text, newSpans, applyListIndents = true))
             pushSnapshot()
             _uiState.update { it.copy(contentAnnotations = encodeSpans(newSpans)) }
             checkForChanges()
@@ -449,7 +488,7 @@ class NoteDetailViewModel @Inject constructor(
         }
 
         _contentEditor.value = TextFieldValue(
-            annotatedString = buildAnnotated(newText, newSpans),
+            annotatedString = buildAnnotated(newText, newSpans, applyListIndents = true),
             selection = TextRange(selection.start.coerceAtMost(newText.length)),
             composition = editor.composition
         )
@@ -496,7 +535,7 @@ class NoteDetailViewModel @Inject constructor(
         }
 
         _contentEditor.value = TextFieldValue(
-            annotatedString = buildAnnotated(newText, newSpans),
+            annotatedString = buildAnnotated(newText, newSpans, applyListIndents = true),
             selection = TextRange(selection.start.coerceAtMost(newText.length)),
             composition = editor.composition
         )

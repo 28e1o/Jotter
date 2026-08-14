@@ -18,11 +18,14 @@ package com.openappslabs.jotter.utils
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.unit.em
 import com.openappslabs.jotter.R
 import org.json.JSONArray
 import org.json.JSONObject
@@ -70,7 +73,11 @@ data class ActiveFormat(
     val italic: Boolean = false
 )
 
-fun buildAnnotated(text: String, spans: List<TextSpan>): AnnotatedString {
+fun buildAnnotated(
+    text: String,
+    spans: List<TextSpan>,
+    applyListIndents: Boolean = false
+): AnnotatedString {
     val styleRanges = spans.map { span ->
         AnnotatedString.Range(
             SpanStyle(
@@ -83,7 +90,38 @@ fun buildAnnotated(text: String, spans: List<TextSpan>): AnnotatedString {
             span.end
         )
     }
-    return AnnotatedString(text, spanStyles = styleRanges)
+    val paragraphRanges = if (applyListIndents) listIndentRanges(text) else emptyList()
+    return AnnotatedString(text, spanStyles = styleRanges, paragraphStyles = paragraphRanges)
+}
+
+private fun listIndentRanges(text: String): List<AnnotatedString.Range<ParagraphStyle>> {
+    if (text.isBlank()) return emptyList()
+    val ranges = mutableListOf<AnnotatedString.Range<ParagraphStyle>>()
+    val offsets = lineStartOffsets(text)
+    for (line in offsets.indices) {
+        val lineStart = offsets[line]
+        val lineEnd = if (line + 1 < offsets.size) offsets[line + 1] - 1 else text.length
+        if (lineEnd <= lineStart) continue
+        val lineText = text.substring(lineStart, lineEnd)
+        val restIndent = when {
+            lineText.startsWith("- ") ||
+                lineText.startsWith("* ") ||
+                lineText.startsWith("+ ") -> 1.2.em
+            Regex("^\\d+\\. ").find(lineText) != null -> 1.4.em
+            else -> null
+        }
+        if (restIndent != null) {
+            val rangeEnd = if (line + 1 < offsets.size) lineEnd + 1 else lineEnd
+            ranges.add(
+                AnnotatedString.Range(
+                    ParagraphStyle(textIndent = TextIndent(restLine = restIndent)),
+                    lineStart,
+                    rangeEnd
+                )
+            )
+        }
+    }
+    return ranges
 }
 
 fun encodeSpans(spans: List<TextSpan>): String {
